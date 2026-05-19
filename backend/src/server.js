@@ -1,4 +1,4 @@
-// backend/src/server.js
+// src/server.js
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -13,33 +13,28 @@ import { errorHandler } from './middleware/errorHandler.js';
 const prisma = new PrismaClient();
 const app = express();
 
-// Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
-}));
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/auth', authRoutes);
 
-// Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date() });
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Error handling
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📦 API: http://localhost:${PORT}/api`);
+  console.log(`💾 Prisma Studio: npx prisma studio`);
 });
 
 export { prisma };
