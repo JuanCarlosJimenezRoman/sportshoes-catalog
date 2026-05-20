@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
               </tr>
-            </thead>
+            </thead> 
             <tbody className="divide-y divide-gray-200">
               {recentProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
                       <div className="h-10 w-10 flex-shrink-0">
                         <img
                           className="h-10 w-10 rounded-lg object-cover"
-                          src={product.images?.[0]?.url || '/placeholder.jpg'}
+                          src={product.images?.[0]?.url?.startsWith('http') ? product.images?.[0]?.url : `http://localhost:3001${product.images[0]?.url}`}
                           alt={product.name}
                           onError={(e) => { e.target.src = '/placeholder.jpg'; }}
                         />

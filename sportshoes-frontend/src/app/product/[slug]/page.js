@@ -1,15 +1,17 @@
 'use client';
-import { useProduct } from '../../../hooks/useProducts';
-import LoadingSpinner from '../../../components/ui/LoadingSpinner';
-import { formatPrice, parseJSON, getStockStatus } from '../../../lib/utils';
+import { useProduct } from '@/hooks/useProducts';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { formatPrice, parseJSON, getStockStatus } from '@/lib/utils';
 import { StarIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
 import { useState } from 'react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3001';
 
 export default function ProductPage({ params }) {
   const { product, loading, error } = useProduct(params.slug);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
+  const [imgError, setImgError] = useState({});
 
   if (loading) {
     return (
@@ -37,18 +39,27 @@ export default function ProductPage({ params }) {
   const variants = product.variants || [];
   const reviews = product.reviews || [];
 
+  const getImageUrl = (url) => {
+    if (!url) return '/placeholder.svg';
+    if (url.startsWith('http')) return url;
+    return `${API_URL}${url}`;
+  };
+
+  const handleImageError = (index) => {
+    setImgError(prev => ({ ...prev, [index]: true }));
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image Gallery */}
         <div>
           <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100 mb-4">
-            <Image
-              src={images[selectedImage]?.url || '/placeholder.jpg'}
+            <img
+              src={imgError[`main-${selectedImage}`] ? '/placeholder.svg' : getImageUrl(images[selectedImage]?.url)}
               alt={images[selectedImage]?.altText || product.name}
-              fill
-              className="object-cover"
-              priority
+              className="w-full h-full object-cover"
+              onError={() => handleImageError(`main-${selectedImage}`)}
             />
           </div>
           {images.length > 1 && (
@@ -57,15 +68,15 @@ export default function ProductPage({ params }) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-square overflow-hidden rounded-lg ${
+                  className={`relative aspect-square overflow-hidden rounded-lg bg-gray-100 ${
                     selectedImage === index ? 'ring-2 ring-primary-600' : ''
                   }`}
                 >
-                  <Image
-                    src={image.url}
+                  <img
+                    src={imgError[`thumb-${index}`] ? '/placeholder.svg' : getImageUrl(image.url)}
                     alt={image.altText || ''}
-                    fill
-                    className="object-cover"
+                    className="w-full h-full object-cover"
+                    onError={() => handleImageError(`thumb-${index}`)}
                   />
                 </button>
               ))}
@@ -160,10 +171,12 @@ export default function ProductPage({ params }) {
           )}
 
           {/* Description */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Descripción</h3>
-            <p className="text-gray-600">{product.description}</p>
-          </div>
+          {product.description && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Descripción</h3>
+              <p className="text-gray-600">{product.description}</p>
+            </div>
+          )}
 
           {/* Materials */}
           {materials.length > 0 && (

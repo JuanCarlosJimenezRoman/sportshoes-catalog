@@ -6,6 +6,7 @@ import {
   ShoppingBagIcon, 
   TagIcon, 
   BuildingStorefrontIcon,
+  AdjustmentsVerticalIcon,
   ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
@@ -14,6 +15,7 @@ const menuItems = [
   { name: 'Productos', href: '/admin/products', icon: ShoppingBagIcon },
   { name: 'Categorías', href: '/admin/categories', icon: TagIcon },
   { name: 'Marcas', href: '/admin/brands', icon: BuildingStorefrontIcon },
+  { name: 'Gestión de Tallas', href: '/admin/sizes', icon: AdjustmentsVerticalIcon },
 ];
 
 export default function AdminLayout({ children }) {

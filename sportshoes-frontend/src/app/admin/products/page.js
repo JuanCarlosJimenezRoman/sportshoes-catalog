@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import api from '@/lib/api';
-import { PencilIcon, TrashIcon, PlusIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, PhotoIcon, AdjustmentsVerticalIcon} from '@heroicons/react/24/outline';
 import Modal from '@/components/ui/Modal';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Pagination from '@/components/ui/Pagination';
 import { formatPrice } from '@/lib/utils';
+import SizeManager from '@/components/admin/SizeManager';
 import toast from 'react-hot-toast';
 
 export default function AdminProducts() {
@@ -17,8 +18,8 @@ export default function AdminProducts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('info');
   const limit = 10;
-
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -203,15 +204,25 @@ export default function AdminProducts() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => handleEdit(product.id)} className="text-blue-600 hover:text-blue-900">
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </td>
+  <div className="flex items-center gap-2">
+    <button onClick={() => handleEdit(product.id)} className="text-blue-600 hover:text-blue-900" title="Editar">
+      <PencilIcon className="h-5 w-5" />
+    </button>
+    <button 
+      onClick={() => {
+        handleEdit(product.id); // Abre el modal
+        setActiveTab('sizes'); // Va directo a la pestaña de tallas
+      }} 
+      className="text-green-600 hover:text-green-900" 
+      title="Gestionar tallas"
+    >
+      <AdjustmentsVerticalIcon className="h-5 w-5" />
+    </button>
+    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900" title="Eliminar">
+      <TrashIcon className="h-5 w-5" />
+    </button>
+  </div>
+</td>
               </tr>
             ))}
           </tbody>
@@ -224,19 +235,77 @@ export default function AdminProducts() {
         onPageChange={setPage}
       />
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={isEditMode ? 'Editar Producto' : 'Nuevo Producto'}
-        size="xl"
+            <Modal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  title={isEditMode ? 'Editar Producto' : 'Nuevo Producto'}
+  size="xl"
+>
+  <div>
+    {/* Tabs */}
+    <div className="flex border-b mb-4">
+      <button
+        onClick={() => setActiveTab('info')}
+        className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          activeTab === 'info' 
+            ? 'border-primary-600 text-primary-600' 
+            : 'border-transparent text-gray-500 hover:text-gray-700'
+        }`}
       >
-        <ProductForm
-          product={editingProduct}
-          isEditMode={isEditMode}
-          onSubmit={handleSubmit}
-          onCancel={() => setIsModalOpen(false)}
+        Información del Producto
+      </button>
+      {isEditMode && (
+        <button
+          onClick={() => setActiveTab('sizes')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'sizes' 
+              ? 'border-primary-600 text-primary-600' 
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Gestión de Tallas
+        </button>
+      )}
+      {isEditMode && (
+        <button
+          onClick={() => setActiveTab('images')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'images' 
+              ? 'border-primary-600 text-primary-600' 
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Imágenes
+        </button>
+      )}
+    </div>
+
+    {/* Contenido de las pestañas */}
+    {activeTab === 'info' && (
+      <ProductForm 
+        product={editingProduct} 
+        isEditMode={isEditMode} 
+        onSubmit={handleSubmit} 
+        onCancel={() => setIsModalOpen(false)} 
+      />
+    )}
+    {activeTab === 'sizes' && isEditMode && editingProduct && (
+      <SizeManager 
+        product={editingProduct} 
+        onUpdate={fetchProducts} 
+      />
+    )}
+    {activeTab === 'images' && isEditMode && editingProduct && (
+      <div className="p-4">
+        <ImageManager 
+          product={editingProduct} 
+          onUpdate={fetchProducts} 
         />
-      </Modal>
+      </div>
+    )}
+  </div>
+</Modal>
+      
     </div>
   );
 }
