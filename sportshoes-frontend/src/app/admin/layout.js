@@ -7,6 +7,7 @@ import {
   TagIcon, 
   BuildingStorefrontIcon,
   AdjustmentsVerticalIcon,
+  DocumentArrowUpIcon,
   ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
@@ -16,6 +17,7 @@ const menuItems = [
   { name: 'Categorías', href: '/admin/categories', icon: TagIcon },
   { name: 'Marcas', href: '/admin/brands', icon: BuildingStorefrontIcon },
   { name: 'Gestión de Tallas', href: '/admin/sizes', icon: AdjustmentsVerticalIcon },
+  { name: 'Importar Excel', href: '/admin/import', icon: DocumentArrowUpIcon },
 ];
 
 export default function AdminLayout({ children }) {

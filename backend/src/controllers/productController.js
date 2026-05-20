@@ -3,6 +3,7 @@ import { QueryBuilder } from '../services/queryBuilder.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import XLSX from 'xlsx';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -524,6 +525,144 @@ export const deleteVariant = async (req, res, next) => {
     });
 
     res.json({ success: true, message: 'Variante desactivada exitosamente' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const importProductsExcel = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No se subió ningún archivo' });
+    }
+
+    const { processProductExcel } = await import('../services/excelService.js');
+    const results = await processProductExcel(req.file.path, req.user.id);
+
+    fs.unlinkSync(req.file.path);
+
+    res.json({
+      success: true,
+      data: {
+        total: results.total,
+        success: results.success,
+        errors: results.errors,
+        message: `Importado: ${results.success} de ${results.total} productos`
+      }
+    });
+  } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    next(error);
+  }
+};
+
+// En productController.js, actualiza downloadTemplate
+export const downloadTemplate = async (req, res, next) => {
+  try {
+    const XLSX = await import('xlsx');
+    
+    const template = [
+      {
+        SKU: 'NIKE-001',
+        NOMBRE: 'Air Max Test',
+        MARCA: 'Nike',
+        CATEGORIA: 'Running',
+        PRECIO: 99.99,
+        PRECIO_COMPARACION: 119.99,
+        COSTO: 50,
+        GENERO: 'MEN',
+        DESCRIPCION: 'Descripción del producto',
+        COLORES: 'negro,blanco,rojo',
+        MATERIALES: 'cuero,malla',
+        TAGS: 'running,deportivo',
+        IMAGENES: 'C:\\imagenes\\NIKE-001.jpg',
+        ACTIVO: 'VERDADERO',
+        DESTACADO: 'FALSO'
+      },
+      {
+        SKU: 'NIKE-002',
+        NOMBRE: 'Air Max Multiple',
+        MARCA: 'Nike',
+        CATEGORIA: 'Running',
+        PRECIO: 129.99,
+        PRECIO_COMPARACION: '',
+        COSTO: '',
+        GENERO: 'UNISEX',
+        DESCRIPCION: 'Producto con múltiples imágenes',
+        COLORES: 'negro,blanco',
+        MATERIALES: 'malla',
+        TAGS: 'running',
+        IMAGENES: 'C:\\imagenes\\NIKE-002-1.jpg;C:\\imagenes\\NIKE-002-2.jpg',
+        ACTIVO: 'VERDADERO',
+        DESTACADO: 'FALSO'
+      }
+    ];
+
+    const ws = XLSX.default.utils.json_to_sheet(template);
+    
+    ws['!cols'] = [
+      { wch: 15 }, { wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 10 },
+      { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 45 }, { wch: 25 },
+      { wch: 25 }, { wch: 25 }, { wch: 45 }, { wch: 12 }, { wch: 12 }
+    ];
+    
+    const wb = XLSX.default.utils.book_new();
+    XLSX.default.utils.book_append_sheet(wb, ws, 'Productos');
+    
+    const buffer = XLSX.default.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=plantilla_productos.xlsx');
+    res.send(buffer);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downloadTemplateWithSizes = async (req, res, next) => {
+  try {
+    const XLSX = await import('xlsx');
+    
+    const template = [
+      {
+        SKU: 'NIKE-001',
+        NOMBRE: 'Air Max Test',
+        MARCA: 'Nike',
+        CATEGORIA: 'Running',
+        PRECIO: 99.99,
+        PRECIO_COMPARACION: 119.99,
+        COSTO: 50,
+        GENERO: 'MEN',
+        DESCRIPCION: 'Descripción del producto',
+        COLORES: 'negro,blanco,rojo',
+        MATERIALES: 'cuero,malla',
+        TAGS: 'running,deportivo',
+        IMAGENES: 'C:\\imagenes\\NIKE-001.jpg',
+        ACTIVO: 'VERDADERO',
+        DESTACADO: 'FALSO',
+        26: 10,
+        26.5: 15,
+        27: 20,
+        27.5: 15,
+        28: 10,
+        28.5: 5,
+        29: 0,
+        29.5: 0,
+        30: 0
+      }
+    ];
+
+    const ws = XLSX.default.utils.json_to_sheet(template);
+    const wb = XLSX.default.utils.book_new();
+    XLSX.default.utils.book_append_sheet(wb, ws, 'Productos');
+    
+    const buffer = XLSX.default.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=plantilla_productos_tallas.xlsx');
+    res.send(buffer);
   } catch (error) {
     next(error);
   }

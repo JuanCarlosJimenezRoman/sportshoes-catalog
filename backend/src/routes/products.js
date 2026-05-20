@@ -3,18 +3,27 @@ import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { upload } from '../services/uploadService.js';
 import * as productController from '../controllers/productController.js';
+import multer from 'multer';
 
 const router = Router();
+const uploadExcel = multer({ dest: 'uploads/excel/' });
 
 // Rutas públicas
 router.get('/', productController.getProducts);
 router.get('/filters', productController.getProductFilters);
 router.get('/available-sizes', productController.getAvailableSizes);
+
+// En src/routes/products.js (las rutas fijas ANTES de /:id)
+router.get('/download-template', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), productController.downloadTemplate);
+router.get('/download-template-sizes', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), productController.downloadTemplateWithSizes);
+router.post('/import-excel', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), uploadExcel.single('file'), productController.importProductsExcel);
+
+// Rutas del formulario
+router.get('/create/form-data', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), productController.getCreateFormData);
+
+// Rutas con parámetros dinámicos
 router.get('/:id', productController.getProduct);
 router.get('/:id/variants', productController.getProductVariants);
-
-// Rutas protegidas
-router.get('/create/form-data', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), productController.getCreateFormData);
 
 router.post('/', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), productController.createProduct);
 router.put('/:id', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), productController.updateProduct);
