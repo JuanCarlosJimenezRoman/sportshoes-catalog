@@ -58,7 +58,7 @@ export default function ProductPage({ params }) {
             <img
               src={imgError[`main-${selectedImage}`] ? '/placeholder.svg' : getImageUrl(images[selectedImage]?.url)}
               alt={images[selectedImage]?.altText || product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               onError={() => handleImageError(`main-${selectedImage}`)}
             />
           </div>
@@ -75,7 +75,7 @@ export default function ProductPage({ params }) {
                   <img
                     src={imgError[`thumb-${index}`] ? '/placeholder.svg' : getImageUrl(image.url)}
                     alt={image.altText || ''}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     onError={() => handleImageError(`thumb-${index}`)}
                   />
                 </button>

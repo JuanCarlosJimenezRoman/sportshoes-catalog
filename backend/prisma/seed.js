@@ -802,7 +802,7 @@ async function main() {
 
     for (const couponData of couponsData) {
       await prisma.coupon.create({ data: couponData });
-      console.log(`  ✓ ${couponData.code} - ${couponData.discount}${couponData.type === 'PERCENTAGE' ? '%' : '€'} ${couponData.isActive ? '🟢' : '🔴'}`);
+      console.log(`  ✓ ${couponData.code} - ${couponData.discount}${couponData.type === 'PERCENTAGE' ? '%' : '$'} ${couponData.isActive ? '🟢' : '🔴'}`);
     }
     console.log(`✅ ${couponsData.length} cupones creados\n`);
 

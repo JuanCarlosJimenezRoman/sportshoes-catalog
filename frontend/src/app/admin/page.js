@@ -71,7 +71,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Precio Promedio',
-      value: `€${stats.averagePrice.toFixed(2)}`,
+      value: `$${stats.averagePrice.toFixed(2)}`,
       icon: CurrencyDollarIcon,
       color: 'bg-orange-500',
     },

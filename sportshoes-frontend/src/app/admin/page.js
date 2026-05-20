@@ -72,7 +72,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Precio Promedio',
-      value: `€${stats.averagePrice.toFixed(2)}`,
+      value: `$${stats.averagePrice.toFixed(2)}`,
       icon: CurrencyDollarIcon,
       color: 'bg-orange-500',
     },
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0">
                         <img
-                          className="h-10 w-10 rounded-lg object-cover"
+                          className="h-10 w-10 rounded-lg object-contain"
                           src={product.images?.[0]?.url?.startsWith('http') ? product.images?.[0]?.url : `http://localhost:3001${product.images[0]?.url}`}
                           alt={product.name}
                           onError={(e) => { e.target.src = '/placeholder.jpg'; }}
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">{product.brand?.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">€{product.price}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">${product.price.toFixed(2)}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       product.variants?.reduce((acc, v) => acc + v.stock, 0) > 0
