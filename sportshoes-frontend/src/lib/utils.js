@@ -1,0 +1,24 @@
+export const parseJSON = (str) => {
+  try {
+    if (typeof str === 'string') {
+      return JSON.parse(str);
+    }
+    return str || [];
+  } catch (error) {
+    return [];
+  }
+};
+
+export const formatPrice = (price) => {
+  if (price === null || price === undefined) return 'Precio no disponible';
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(price);
+};
+
+export const getStockStatus = (stock) => {
+  if (stock === 0) return { label: 'Agotado', color: 'bg-red-500', textColor: 'text-red-600' };
+  if (stock <= 5) return { label: 'Pocas unidades', color: 'bg-yellow-500', textColor: 'text-yellow-600' };
+  return { label: 'Disponible', color: 'bg-green-500', textColor: 'text-green-600' };
+};

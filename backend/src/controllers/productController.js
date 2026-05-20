@@ -1,6 +1,11 @@
-// src/controllers/productController.js
 import { prisma } from '../server.js';
 import { QueryBuilder } from '../services/queryBuilder.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -19,8 +24,8 @@ export const getProducts = async (req, res, next) => {
       .addInclude({
         brand: true,
         category: true,
-        images: { where: { isMain: true }, take: 1 },
-        variants: { where: { stock: { gt: 0 }, isActive: true } }
+        images: { orderBy: { position: 'asc' } },
+        variants: { where: { isActive: true }, orderBy: { size: 'asc' } }
       });
 
     const queryOptions = queryBuilder.build();
@@ -34,13 +39,13 @@ export const getProducts = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+      data: products.map(product => ({
+        ...product,
+        colors: JSON.parse(product.colors || '[]'),
+        materials: JSON.parse(product.materials || '[]'),
+        tags: JSON.parse(product.tags || '[]')
+      })),
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     });
   } catch (error) {
     next(error);
@@ -50,9 +55,7 @@ export const getProducts = async (req, res, next) => {
 export const getProduct = async (req, res, next) => {
   try {
     const product = await prisma.product.findFirst({
-      where: {
-        OR: [{ id: req.params.id }, { slug: req.params.id }]
-      },
+      where: { OR: [{ id: req.params.id }, { slug: req.params.id }, { sku: req.params.id }] },
       include: {
         brand: true,
         category: true,
@@ -73,7 +76,13 @@ export const getProduct = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: { ...product, averageRating: avgRating._avg.rating || 0 }
+      data: {
+        ...product,
+        colors: JSON.parse(product.colors || '[]'),
+        materials: JSON.parse(product.materials || '[]'),
+        tags: JSON.parse(product.tags || '[]'),
+        averageRating: avgRating._avg.rating || 0
+      }
     });
   } catch (error) {
     next(error);
@@ -82,29 +91,68 @@ export const getProduct = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { variants, ...productData } = req.body;
-    const slug = productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const sku = `${productData.brandId.substring(0, 3).toUpperCase()}-${Date.now()}`;
+    const { variants, brandId, categoryId, sku, ...productData } = req.body;
+
+    if (!sku) {
+      return res.status(400).json({ success: false, message: 'El SKU es requerido' });
+    }
+
+    if (!brandId || !categoryId) {
+      return res.status(400).json({ success: false, message: 'brandId y categoryId son requeridos' });
+    }
+
+    const existingSku = await prisma.product.findUnique({ where: { sku } });
+    if (existingSku) {
+      return res.status(400).json({ success: false, message: `El SKU '${sku}' ya existe` });
+    }
+
+    const [brand, category] = await Promise.all([
+      prisma.brand.findUnique({ where: { id: brandId } }),
+      prisma.category.findUnique({ where: { id: categoryId } })
+    ]);
+
+    if (!brand) {
+      return res.status(400).json({ success: false, message: `La marca no existe` });
+    }
+
+    if (!category) {
+      return res.status(400).json({ success: false, message: `La categoría no existe` });
+    }
+
+    const slug = productData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
     const product = await prisma.product.create({
       data: {
-        ...productData,
-        sku,
-        slug,
-        price: parseFloat(productData.price),
+        name: productData.name,
+        description: productData.description || '',
+        price: parseFloat(productData.price) || 0,
         comparePrice: productData.comparePrice ? parseFloat(productData.comparePrice) : null,
         cost: productData.cost ? parseFloat(productData.cost) : null,
+        gender: productData.gender || 'UNISEX',
         colors: JSON.stringify(productData.colors || []),
         materials: JSON.stringify(productData.materials || []),
         tags: JSON.stringify(productData.tags || []),
+        isActive: productData.isActive !== undefined ? productData.isActive : true,
+        isFeatured: productData.isFeatured || false,
+        seoTitle: productData.seoTitle || null,
+        seoDescription: productData.seoDescription || null,
+        sku,
+        slug,
+        brandId: brand.id,
+        categoryId: category.id,
         userId: req.user.id,
-        variants: variants ? {
+        variants: variants && variants.length > 0 ? {
           create: variants.map(v => ({
             sku: `${sku}-${v.size}-${v.color}`,
-            size: v.size,
+            size: v.size.toString(),
             color: v.color,
+            colorName: v.colorName || v.color,
             stock: parseInt(v.stock) || 0,
-            price: v.price ? parseFloat(v.price) : null
+            price: v.price ? parseFloat(v.price) : null,
+            isActive: true
           }))
         } : undefined
       },
@@ -118,6 +166,7 @@ export const createProduct = async (req, res, next) => {
 
     res.status(201).json({ success: true, data: product });
   } catch (error) {
+    console.error('Error creating product:', error);
     next(error);
   }
 };
@@ -125,9 +174,11 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
   try {
     const updateData = { ...req.body };
-    delete updateData.sku;
-    delete updateData.slug;
     delete updateData.id;
+    delete updateData.brandId;
+    delete updateData.categoryId;
+    delete updateData.userId;
+    delete updateData.sku;
 
     if (updateData.price) updateData.price = parseFloat(updateData.price);
     if (updateData.comparePrice) updateData.comparePrice = parseFloat(updateData.comparePrice);
@@ -135,6 +186,13 @@ export const updateProduct = async (req, res, next) => {
     if (updateData.colors) updateData.colors = JSON.stringify(updateData.colors);
     if (updateData.materials) updateData.materials = JSON.stringify(updateData.materials);
     if (updateData.tags) updateData.tags = JSON.stringify(updateData.tags);
+
+    if (updateData.name) {
+      updateData.slug = updateData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
 
     const product = await prisma.product.update({
       where: { id: req.params.id },
@@ -166,13 +224,110 @@ export const deleteProduct = async (req, res, next) => {
   }
 };
 
+export const uploadProductImages = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No se subieron imágenes' });
+    }
+
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      files.forEach(file => {
+        fs.unlinkSync(file.path);
+      });
+      return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+    }
+
+    const existingImagesCount = await prisma.productImage.count({ where: { productId: id } });
+
+    const images = await Promise.all(
+      files.map((file, index) =>
+        prisma.productImage.create({
+          data: {
+            url: `/uploads/products/${file.filename}`,
+            altText: `${product.name} - Vista ${existingImagesCount + index + 1}`,
+            position: existingImagesCount + index,
+            isMain: existingImagesCount === 0 && index === 0,
+            productId: id
+          }
+        })
+      )
+    );
+
+    res.json({ success: true, data: images });
+  } catch (error) {
+    if (req.files) {
+      req.files.forEach(file => {
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      });
+    }
+    next(error);
+  }
+};
+
+export const deleteProductImage = async (req, res, next) => {
+  try {
+    const image = await prisma.productImage.findUnique({ where: { id: req.params.imageId } });
+
+    if (!image) {
+      return res.status(404).json({ success: false, message: 'Imagen no encontrada' });
+    }
+
+    const filePath = path.join(__dirname, '../../public', image.url);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await prisma.productImage.delete({ where: { id: req.params.imageId } });
+
+    const remainingImages = await prisma.productImage.findMany({
+      where: { productId: image.productId },
+      orderBy: { position: 'asc' }
+    });
+
+    if (remainingImages.length > 0 && !remainingImages.some(img => img.isMain)) {
+      await prisma.productImage.update({
+        where: { id: remainingImages[0].id },
+        data: { isMain: true }
+      });
+    }
+
+    res.json({ success: true, message: 'Imagen eliminada exitosamente' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const setMainImage = async (req, res, next) => {
+  try {
+    const { productId, imageId } = req.params;
+
+    await prisma.productImage.updateMany({
+      where: { productId },
+      data: { isMain: false }
+    });
+
+    const image = await prisma.productImage.update({
+      where: { id: imageId },
+      data: { isMain: true }
+    });
+
+    res.json({ success: true, data: image });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getProductFilters = async (req, res, next) => {
   try {
     const [categories, brands, sizes] = await Promise.all([
       prisma.category.findMany({ where: { isActive: true }, select: { id: true, name: true, slug: true } }),
       prisma.brand.findMany({ where: { isActive: true }, select: { id: true, name: true, slug: true } }),
       prisma.productVariant.findMany({
-        where: { stock: { gt: 0 }, isActive: true },
+        where: { stock: { gt: 0 }, isActive: true, product: { isActive: true } },
         select: { size: true },
         distinct: ['size'],
         orderBy: { size: 'asc' }
@@ -181,12 +336,110 @@ export const getProductFilters = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: {
-        categories,
-        brands,
-        sizes: sizes.map(s => s.size)
-      }
+      data: { categories, brands, sizes: sizes.map(s => s.size) }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCreateFormData = async (req, res, next) => {
+  try {
+    const [brands, categories] = await Promise.all([
+      prisma.brand.findMany({ where: { isActive: true }, select: { id: true, name: true, slug: true } }),
+      prisma.category.findMany({ where: { isActive: true }, select: { id: true, name: true, slug: true } })
+    ]);
+
+    res.json({ success: true, data: { brands, categories } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAvailableSizes = async (req, res, next) => {
+  try {
+    const sizes = await prisma.productVariant.findMany({
+      where: {
+        product: { isActive: true },
+        stock: { gt: 0 },
+        isActive: true
+      },
+      select: {
+        size: true,
+        color: true,
+        colorName: true,
+        stock: true,
+        price: true,
+        productId: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+            sku: true,
+            brand: { select: { name: true } }
+          }
+        }
+      },
+      orderBy: [
+        { product: { name: 'asc' } },
+        { size: 'asc' }
+      ]
+    });
+
+    const groupedSizes = sizes.reduce((acc, variant) => {
+      const key = variant.productId;
+      if (!acc[key]) {
+        acc[key] = {
+          product: variant.product,
+          availableSizes: []
+        };
+      }
+      acc[key].availableSizes.push({
+        size: variant.size,
+        color: variant.color,
+        colorName: variant.colorName,
+        stock: variant.stock,
+        price: variant.price
+      });
+      return acc;
+    }, {});
+
+    res.json({ success: true, data: Object.values(groupedSizes) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProductVariants = async (req, res, next) => {
+  try {
+    const variants = await prisma.productVariant.findMany({
+      where: {
+        productId: req.params.id,
+        isActive: true
+      },
+      orderBy: { size: 'asc' }
+    });
+
+    res.json({ success: true, data: variants });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateVariant = async (req, res, next) => {
+  try {
+    const { variantId } = req.params;
+    const updateData = { ...req.body };
+    
+    if (updateData.stock !== undefined) updateData.stock = parseInt(updateData.stock);
+    if (updateData.price) updateData.price = parseFloat(updateData.price);
+
+    const variant = await prisma.productVariant.update({
+      where: { id: variantId },
+      data: updateData
+    });
+
+    res.json({ success: true, data: variant });
   } catch (error) {
     next(error);
   }
