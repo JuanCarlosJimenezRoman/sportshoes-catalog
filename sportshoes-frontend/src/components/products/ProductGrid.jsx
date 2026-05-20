@@ -4,22 +4,22 @@ import EmptyState from '@/components/ui/EmptyState';
 export default function ProductGrid({ products, loading, error }) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="card animate-pulse">
-            <div className="aspect-square bg-gray-200 flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="aspect-[3/4] md:aspect-square bg-gray-200 flex items-center justify-center">
+              <svg className="w-10 h-10 md:w-12 md:h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <div className="p-4 space-y-3">
-              <div className="h-3 bg-gray-200 rounded w-1/4" />
-              <div className="h-4 bg-gray-200 rounded w-3/4" />
-              <div className="h-4 bg-gray-200 rounded w-1/2" />
-              <div className="flex gap-2 mt-2">
-                <div className="h-5 w-10 bg-gray-200 rounded" />
-                <div className="h-5 w-10 bg-gray-200 rounded" />
-                <div className="h-5 w-10 bg-gray-200 rounded" />
+            <div className="p-3 md:p-4 space-y-2 md:space-y-3">
+              <div className="h-2.5 md:h-3 bg-gray-200 rounded w-1/3" />
+              <div className="h-3 md:h-4 bg-gray-200 rounded w-3/4" />
+              <div className="h-3 md:h-4 bg-gray-200 rounded w-1/2" />
+              <div className="flex gap-1.5 md:gap-2 mt-1 md:mt-2">
+                <div className="h-4 md:h-5 w-8 md:w-10 bg-gray-200 rounded" />
+                <div className="h-4 md:h-5 w-8 md:w-10 bg-gray-200 rounded" />
+                <div className="h-4 md:h-5 w-8 md:w-10 bg-gray-200 rounded" />
               </div>
             </div>
           </div>
@@ -47,7 +47,7 @@ export default function ProductGrid({ products, loading, error }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
       {products.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}
