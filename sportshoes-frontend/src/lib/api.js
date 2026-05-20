@@ -16,11 +16,13 @@ api.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+    // No establecer Content-Type para FormData (se establece automáticamente con el boundary)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor
@@ -31,7 +33,6 @@ api.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        // Solo redirigir si no estamos ya en login
         if (!window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }
@@ -40,27 +41,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// 👇 ¡AGREGA ESTA SECCIÓN AQUÍ!
-// Métodos de ayuda para que useAuth.js gestione el almacenamiento
-export const auth = {
-  login: (token, user) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-  },
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  },
-  getUser: () => {
-    if (typeof window === 'undefined') return null;
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  },
-  getToken: () => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
-  }
-};
 
 export default api;

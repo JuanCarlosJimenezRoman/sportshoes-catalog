@@ -15,12 +15,13 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const sku = req.body.sku || req.params.sku || 'product';
-    const ext = path.extname(file.originalname);
-    const timestamp = Date.now();
-    const filename = `${sku}-${timestamp}${ext}`;
-    cb(null, filename);
-  }
+  const sku = req.params.sku || req.body.sku || 'product';
+  const cleanSku = sku.replace(/[^a-zA-Z0-9-_]/g, '');
+  const timestamp = Date.now();
+  const ext = path.extname(file.originalname);
+  const filename = `${cleanSku}-${timestamp}${ext}`;
+  cb(null, filename);
+}
 });
 
 const fileFilter = (req, file, cb) => {

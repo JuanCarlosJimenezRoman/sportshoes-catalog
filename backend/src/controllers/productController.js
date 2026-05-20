@@ -173,12 +173,15 @@ export const createProduct = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
   try {
-    const updateData = { ...req.body };
+    const { variants, ...updateData } = req.body;
+    
     delete updateData.id;
     delete updateData.brandId;
     delete updateData.categoryId;
     delete updateData.userId;
     delete updateData.sku;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
 
     if (updateData.price) updateData.price = parseFloat(updateData.price);
     if (updateData.comparePrice) updateData.comparePrice = parseFloat(updateData.comparePrice);
@@ -205,8 +208,50 @@ export const updateProduct = async (req, res, next) => {
       }
     });
 
-    res.json({ success: true, data: product });
+    if (variants && Array.isArray(variants)) {
+      for (const variant of variants) {
+        if (variant.id) {
+          await prisma.productVariant.update({
+            where: { id: variant.id },
+            data: {
+              size: variant.size?.toString(),
+              color: variant.color,
+              colorName: variant.colorName || variant.color,
+              stock: variant.stock !== undefined ? parseInt(variant.stock) : undefined,
+              price: variant.price ? parseFloat(variant.price) : null,
+              isActive: variant.isActive !== undefined ? variant.isActive : true
+            }
+          });
+        } else {
+          await prisma.productVariant.create({
+            data: {
+              sku: `${product.sku}-${variant.size}-${variant.color}`,
+              size: variant.size?.toString(),
+              color: variant.color,
+              colorName: variant.colorName || variant.color,
+              stock: parseInt(variant.stock) || 0,
+              price: variant.price ? parseFloat(variant.price) : null,
+              isActive: true,
+              productId: product.id
+            }
+          });
+        }
+      }
+    }
+
+    const updatedProduct = await prisma.product.findUnique({
+      where: { id: req.params.id },
+      include: {
+        brand: true,
+        category: true,
+        variants: { orderBy: { size: 'asc' } },
+        images: { orderBy: { position: 'asc' } }
+      }
+    });
+
+    res.json({ success: true, data: updatedProduct });
   } catch (error) {
+    console.error('Error updating product:', error);
     next(error);
   }
 };
@@ -440,6 +485,45 @@ export const updateVariant = async (req, res, next) => {
     });
 
     res.json({ success: true, data: variant });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addVariant = async (req, res, next) => {
+  try {
+    const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+    }
+
+    const variant = await prisma.productVariant.create({
+      data: {
+        sku: `${product.sku}-${req.body.size}-${req.body.color}`,
+        size: req.body.size.toString(),
+        color: req.body.color,
+        colorName: req.body.colorName || req.body.color,
+        stock: parseInt(req.body.stock) || 0,
+        price: req.body.price ? parseFloat(req.body.price) : null,
+        isActive: true,
+        productId: product.id
+      }
+    });
+
+    res.status(201).json({ success: true, data: variant });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteVariant = async (req, res, next) => {
+  try {
+    await prisma.productVariant.update({
+      where: { id: req.params.variantId },
+      data: { isActive: false, stock: 0 }
+    });
+
+    res.json({ success: true, message: 'Variante desactivada exitosamente' });
   } catch (error) {
     next(error);
   }
