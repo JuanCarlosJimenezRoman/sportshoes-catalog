@@ -40,14 +40,25 @@ export default function AdminLayout({ children }) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
-        <button onClick={closeSidebar} className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-[#00FF88] to-[#7C3AED] rounded-xl flex items-center justify-center shadow-lg shadow-[#7C3AED]/20">
+            <span className="text-white font-bold text-sm">A</span>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-[#1A1A1A]">Admin Panel</h2>
+            <p className="text-[10px] text-[#999999] uppercase tracking-wider font-medium">SportShoes</p>
+          </div>
+        </div>
+        <button 
+          onClick={closeSidebar} 
+          className="lg:hidden p-2 rounded-xl hover:bg-[#F5F5F5] text-[#666666] hover:text-[#1A1A1A] transition-all"
+        >
           <XMarkIcon className="h-5 w-5" />
         </button>
       </div>
 
-      <nav className="space-y-0.5 flex-1">
+      <nav className="space-y-1 flex-1">
         {menuItems.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== '/admin' && pathname.startsWith(item.href));
@@ -56,70 +67,84 @@ export default function AdminLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={closeSidebar}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-[#00FF88]/10 to-[#7C3AED]/10 text-[#7C3AED] shadow-sm'
+                  : 'text-[#666666] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]'
               }`}
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              {item.name}
+              <div className={`p-1.5 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? 'bg-[#7C3AED]/10' 
+                  : 'bg-[#F5F5F5] group-hover:bg-[#E8E8E8]'
+              }`}>
+                <item.icon className={`h-4 w-4 flex-shrink-0 ${
+                  isActive ? 'text-[#7C3AED]' : 'text-[#999999] group-hover:text-[#666666]'
+                }`} />
+              </div>
+              <span className="truncate">{item.name}</span>
+              {isActive && (
+                <div className="ml-auto">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] block" />
+                </div>
+              )}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t pt-4 mt-4 space-y-1">
+      <div className="border-t border-[#E8E8E8] pt-4 mt-4 space-y-1">
         <Link
           href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#666666] 
+                   hover:bg-[#F5F5F5] hover:text-[#1A1A1A] transition-all duration-200 group"
         >
-          <HomeIcon className="h-5 w-5 flex-shrink-0" />
-          Volver a la tienda
+          <div className="p-1.5 rounded-lg bg-[#F5F5F5] group-hover:bg-[#E8E8E8] transition-all">
+            <HomeIcon className="h-4 w-4 text-[#999999] group-hover:text-[#666666]" />
+          </div>
+          <span>Volver a la tienda</span>
         </Link>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#FF6B6B] 
+                   hover:bg-[#FF6B6B]/10 transition-all duration-200 w-full group"
         >
-          <ArrowLeftOnRectangleIcon className="h-5 w-5 flex-shrink-0" />
-          Cerrar sesión
+          <div className="p-1.5 rounded-lg bg-[#FF6B6B]/10 group-hover:bg-[#FF6B6B]/20 transition-all">
+            <ArrowLeftOnRectangleIcon className="h-4 w-4" />
+          </div>
+          <span>Cerrar sesión</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-[calc(100vh-4rem)]">
-      {/* Mobile hamburger button */}
+    <div className="min-h-[calc(100vh-4rem)] bg-[#FAFAFA]">
       <button
         onClick={() => setSidebarOpen(true)}
-        className="lg:hidden fixed top-16 left-3 z-30 bg-white p-2 rounded-lg shadow-md border hover:bg-gray-50"
+        className="lg:hidden fixed top-20 left-3 z-30 bg-white p-2.5 rounded-xl shadow-lg border border-[#E8E8E8] 
+                 hover:shadow-xl hover:border-[#00FF88]/50 transition-all duration-200 group"
         aria-label="Abrir menú"
       >
-        <Bars3Icon className="h-5 w-5 text-gray-700" />
+        <Bars3Icon className="h-5 w-5 text-[#666666] group-hover:text-[#1A1A1A]" />
       </button>
 
-      {/* Desktop sidebar - SIEMPRE visible en pantallas grandes */}
-      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-16 lg:left-0 lg:w-64 bg-white border-r border-gray-200 p-6 overflow-y-auto">
+      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-16 lg:left-0 lg:w-64 bg-white border-r border-[#E8E8E8] p-5 xl:p-6 overflow-y-auto">
         <SidebarContent />
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
-          {/* Fondo oscuro */}
           <div 
-            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity" 
+            className="absolute inset-0 bg-[#1A1A1A]/60 backdrop-blur-sm transition-opacity" 
             onClick={closeSidebar} 
           />
-          {/* Panel lateral */}
-          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white shadow-xl p-4 overflow-y-auto animate-slide-in">
+          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white shadow-2xl p-5 overflow-y-auto animate-slide-in-left">
             <SidebarContent />
           </div>
         </div>
       )}
 
-      {/* Main content */}
       <main className="lg:pl-64 p-4 md:p-6 lg:p-8">
         {children}
       </main>

@@ -22,31 +22,37 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
   };
 
   return (
-    <nav className="flex items-center justify-center space-x-2 mt-8">
+    <nav className="flex items-center justify-center gap-1.5 mt-10">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-10 h-10 rounded-xl border border-[#E8E8E8] flex items-center justify-center
+                 hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200
+                 text-[#666666] hover:text-[#1A1A1A]"
       >
         <ChevronLeftIcon className="h-5 w-5" />
       </button>
+      
       {getPageNumbers().map(page => (
         <button
           key={page}
           onClick={() => onPageChange(page)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+          className={`w-10 h-10 rounded-xl text-sm font-medium transition-all duration-200 ${
             currentPage === page
-              ? 'bg-primary-600 text-white'
-              : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+              ? 'bg-[#1A1A1A] text-white shadow-lg shadow-[#1A1A1A]/20'
+              : 'border border-[#E8E8E8] text-[#666666] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]'
           }`}
         >
           {page}
         </button>
       ))}
+      
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-10 h-10 rounded-xl border border-[#E8E8E8] flex items-center justify-center
+                 hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200
+                 text-[#666666] hover:text-[#1A1A1A]"
       >
         <ChevronRightIcon className="h-5 w-5" />
       </button>

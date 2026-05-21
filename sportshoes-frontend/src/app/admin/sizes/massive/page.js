@@ -6,7 +6,8 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { 
   CheckIcon, 
   MagnifyingGlassIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  TableCellsIcon
 } from '@heroicons/react/24/outline';
 
 const GENDER_CATEGORIES = {
@@ -138,30 +139,37 @@ export default function MassiveSizesPage() {
   const safeHeaders = Array.isArray(headers) ? headers : [];
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Edición Masiva de Tallas</h1>
-          <p className="text-xs md:text-sm text-gray-500 mt-1">
-            Activa/desactiva tallas para múltiples productos
-          </p>
+    <div className="space-y-5 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative">
+          <div className="absolute top-0 left-0 w-20 h-1 bg-gradient-to-r from-[#00FF88] to-[#7C3AED] rounded-full" />
+          <div className="pt-4">
+            <h1 className="text-xl md:text-2xl font-bold text-[#1A1A1A]">Edición Masiva de Tallas</h1>
+            <p className="text-xs md:text-sm text-[#999999] mt-1">
+              Activa/desactiva tallas para múltiples productos
+            </p>
+          </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-2">
           {changes.length > 0 && (
-            <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs md:text-sm font-medium">
+            <span className="bg-[#FFD93D]/10 text-[#FFD93D] px-3 py-1.5 rounded-xl text-xs font-semibold border border-[#FFD93D]/20">
               {changedProductIds.length} producto(s) modificado(s)
             </span>
           )}
           <button
             onClick={saveChanges}
             disabled={changes.length === 0 || saving}
-            className="btn-primary text-xs md:text-sm px-4 py-2 flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2.5 bg-gradient-to-r from-[#00FF88] to-[#7C3AED] text-white rounded-xl text-sm font-semibold
+                     hover:shadow-lg hover:shadow-[#7C3AED]/25 transition-all duration-200
+                     disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {saving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="relative w-4 h-4">
+                  <div className="absolute inset-0 rounded-full border-2 border-white/30" />
+                  <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-white animate-spin" />
+                </div>
                 Guardando...
               </>
             ) : (
@@ -174,12 +182,12 @@ export default function MassiveSizesPage() {
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-3 bg-white p-3 md:p-4 rounded-lg shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-3 bg-white rounded-2xl border border-[#E8E8E8] p-4 shadow-sm">
         <select
           value={selectedGender}
           onChange={(e) => setSelectedGender(e.target.value)}
-          className="input-field text-sm w-full sm:w-40"
+          className="px-4 py-2.5 bg-[#F5F5F5] border border-[#E8E8E8] rounded-xl text-sm text-[#1A1A1A]
+                   focus:outline-none focus:border-[#7C3AED] transition-all duration-200 w-full sm:w-44"
         >
           <option value="MEN">👨 Hombre</option>
           <option value="WOMEN">👩 Mujer</option>
@@ -193,76 +201,79 @@ export default function MassiveSizesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre o SKU..."
-            className="input-field pl-9 text-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#F5F5F5] border border-[#E8E8E8] rounded-xl text-sm text-[#1A1A1A]
+                     placeholder-[#999999] focus:outline-none focus:border-[#00FF88] focus:bg-white
+                     transition-all duration-200"
           />
-          <MagnifyingGlassIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-3 h-4 w-4 text-[#999999]" />
         </div>
       </div>
 
-      {/* Tabla con altura máxima y scroll */}
       {loading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex justify-center py-16">
           <LoadingSpinner size="lg" />
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg">
-          <ExclamationTriangleIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500">No se encontraron productos</p>
+        <div className="text-center py-16 bg-white rounded-2xl border border-[#E8E8E8]">
+          <div className="w-16 h-16 bg-[#F5F5F5] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ExclamationTriangleIcon className="h-8 w-8 text-[#CCCCCC]" />
+          </div>
+          <p className="text-[#999999] font-medium">No se encontraron productos</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          {/* Contenedor con altura máxima */}
+        <div className="bg-white rounded-2xl border border-[#E8E8E8] shadow-sm overflow-hidden">
           <div 
             ref={tableContainerRef}
             className="overflow-auto max-h-[calc(100vh-300px)]"
           >
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              {/* Encabezado fijo */}
+            <table className="min-w-full divide-y divide-[#E8E8E8] text-sm">
               <thead className="sticky top-0 z-20">
                 <tr>
-                  <th className="sticky left-0 z-30 bg-gray-100 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap min-w-[200px] border-b border-gray-200">
+                  <th className="sticky left-0 z-30 bg-[#F5F5F5] px-4 py-3.5 text-left text-xs font-semibold text-[#666666] uppercase tracking-wider whitespace-nowrap min-w-[220px] border-b border-[#E8E8E8]">
                     Producto
                   </th>
                   {safeHeaders.map(talla => (
-                    <th key={talla} className="px-2 py-3 text-center text-xs font-mono text-gray-500 whitespace-nowrap bg-gray-100 border-b border-gray-200">
+                    <th key={talla} className="px-2 py-3.5 text-center text-xs font-semibold text-[#666666] whitespace-nowrap bg-[#F5F5F5] border-b border-[#E8E8E8]">
                       {talla}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-[#E8E8E8] bg-white">
                 {products.map(producto => {
                   const hasChanges = changedProductIds.includes(producto.id);
                   
                   return (
-                    <tr key={producto.id} className={`hover:bg-gray-50 transition-colors ${hasChanges ? 'bg-yellow-50' : ''}`}>
-                      {/* Columna fija del producto */}
-                      <td className="sticky left-0 z-10 bg-white px-3 py-2.5 border-r border-gray-100">
-                        <div className="flex items-center gap-2 min-w-[200px] max-w-[300px]">
-                          <div className="h-8 w-8 flex-shrink-0 rounded bg-gray-100 overflow-hidden">
+                    <tr key={producto.id} className={`hover:bg-[#F5F5F5] transition-colors ${
+                      hasChanges ? 'bg-[#FFD93D]/5' : ''
+                    }`}>
+                      <td className="sticky left-0 z-10 bg-white px-4 py-3 border-r border-[#E8E8E8]">
+                        <div className="flex items-center gap-3 min-w-[220px] max-w-[320px]">
+                          <div className="h-9 w-9 flex-shrink-0 rounded-xl bg-[#F5F5F5] overflow-hidden border border-[#E8E8E8]">
                             {producto.image ? (
                               <img
                                 src={getImageUrl(producto.image)}
                                 alt=""
-                                className="h-8 w-8 object-cover"
+                                className="h-9 w-9 object-contain p-1"
                                 onError={(e) => { e.target.style.display = 'none'; }}
                               />
                             ) : (
-                              <div className="h-8 w-8 flex items-center justify-center text-gray-400 text-xs">N/A</div>
+                              <div className="h-9 w-9 flex items-center justify-center">
+                                <TableCellsIcon className="h-4 w-4 text-[#CCCCCC]" />
+                              </div>
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-semibold text-[#1A1A1A] truncate">
                               {producto.name}
                             </p>
-                            <p className="text-[10px] md:text-xs text-gray-500 font-mono">
+                            <p className="text-[11px] text-[#999999] font-mono">
                               {producto.sku}
                             </p>
                           </div>
                         </div>
                       </td>
 
-                      {/* Checkboxes de tallas */}
                       {safeHeaders.map(talla => {
                         const isChecked = producto.sizes?.[talla] || false;
                         const isChanged = changes.some(
@@ -270,15 +281,28 @@ export default function MassiveSizesPage() {
                         );
                         
                         return (
-                          <td key={talla} className={`px-2 py-2.5 text-center ${isChanged ? 'bg-yellow-100' : ''}`}>
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => handleCheckboxChange(producto.id, talla, e.target.checked)}
-                              className={`h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer ${
-                                isChanged ? 'ring-2 ring-yellow-400' : ''
-                              }`}
-                            />
+                          <td key={talla} className={`px-2 py-3 text-center ${isChanged ? 'bg-[#FFD93D]/10' : ''}`}>
+                            <div className="flex justify-center">
+                              <div className={`relative ${isChanged ? 'scale-110' : ''} transition-transform`}>
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => handleCheckboxChange(producto.id, talla, e.target.checked)}
+                                  className="sr-only peer"
+                                />
+                                <div className={`w-5 h-5 rounded-md border-2 cursor-pointer transition-all duration-200
+                                  ${isChecked 
+                                    ? 'bg-[#00FF88] border-[#00FF88]' 
+                                    : 'bg-white border-[#CCCCCC] hover:border-[#00FF88]'
+                                  }
+                                  ${isChanged ? 'ring-2 ring-[#FFD93D] ring-offset-1' : ''}
+                                `}>
+                                  {isChecked && (
+                                    <CheckIcon className="h-4 w-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </td>
                         );
                       })}
@@ -289,13 +313,18 @@ export default function MassiveSizesPage() {
             </table>
           </div>
 
-          {/* Footer siempre visible */}
-          <div className="px-4 py-2 bg-gray-50 border-t text-xs text-gray-500 flex items-center gap-4">
-            <span>Total: {products.length} productos</span>
-            <span>·</span>
-            <span>{safeHeaders.length} tallas</span>
-            <span className="hidden sm:inline">·</span>
+          <div className="px-5 py-3 bg-[#F5F5F5] border-t border-[#E8E8E8] text-xs text-[#999999] flex items-center gap-4">
+            <span className="font-medium text-[#666666]">{products.length} productos</span>
+            <span className="w-1 h-1 bg-[#CCCCCC] rounded-full" />
+            <span className="font-medium text-[#666666]">{safeHeaders.length} tallas</span>
+            <span className="hidden sm:inline w-1 h-1 bg-[#CCCCCC] rounded-full" />
             <span className="hidden sm:inline">Click en checkbox para modificar</span>
+            {changes.length > 0 && (
+              <>
+                <span className="w-1 h-1 bg-[#FFD93D] rounded-full" />
+                <span className="text-[#FFD93D] font-medium">{changes.length} cambios pendientes</span>
+              </>
+            )}
           </div>
         </div>
       )}

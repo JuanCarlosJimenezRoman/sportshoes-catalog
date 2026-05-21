@@ -77,4 +77,4 @@ export default function ProductGrid({ products, loading, error }) {
       ))}
     </div>
   );
-}
+} 

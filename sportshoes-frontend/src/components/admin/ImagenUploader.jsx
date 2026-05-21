@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { TrashIcon, StarIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, StarIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
@@ -79,12 +79,17 @@ export default function ImageUploader({ productId, sku, existingImages = [], onI
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Imágenes del producto {sku && <span className="text-gray-500">(SKU: {sku})</span>}
+        <label className="block text-xs font-semibold text-[#666666] uppercase tracking-wider mb-3">
+          Imágenes del producto
+          {sku && (
+            <span className="text-[#999999] font-normal normal-case tracking-normal ml-2">
+              SKU: {sku}
+            </span>
+          )}
         </label>
         
-        {/* Upload Area */}
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition-colors">
+        <div className="border-2 border-dashed border-[#E8E8E8] rounded-2xl p-8 text-center 
+                      hover:border-[#00FF88] hover:bg-[#00FF88]/5 transition-all duration-200 group">
           <input
             type="file"
             multiple
@@ -99,74 +104,87 @@ export default function ImageUploader({ productId, sku, existingImages = [], onI
             className="cursor-pointer flex flex-col items-center"
           >
             {uploading ? (
-              <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-gray-600">Subiendo imágenes...</span>
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative w-12 h-12">
+                  <div className="absolute inset-0 rounded-full border-4 border-[#E8E8E8]" />
+                  <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#00FF88] animate-spin" />
+                </div>
+                <span className="text-[#666666] font-medium">Subiendo imágenes...</span>
               </div>
             ) : (
               <>
-                <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                <span className="text-gray-600">
-                  <span className="text-primary-600 font-medium">Haz clic para subir</span> o arrastra las imágenes
+                <div className="w-14 h-14 bg-[#F5F5F5] rounded-2xl flex items-center justify-center mb-4 
+                              group-hover:bg-[#00FF88]/10 transition-colors">
+                  <PhotoIcon className="w-7 h-7 text-[#999999] group-hover:text-[#00FF88] transition-colors" />
+                </div>
+                <span className="text-[#666666] font-medium">
+                  <span className="text-[#00FF88]">Haz clic para subir</span> o arrastra las imágenes
                 </span>
-                <span className="text-xs text-gray-500 mt-1">PNG, JPG, WEBP hasta 5MB</span>
+                <span className="text-xs text-[#999999] mt-2">PNG, JPG, WEBP hasta 5MB</span>
               </>
             )}
           </label>
         </div>
       </div>
 
-      {/* Image Grid */}
       {images.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
-            {images.length} imagen(es)
-          </h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-xs font-semibold text-[#666666] uppercase tracking-wider">
+              {images.length} imagen{images.length !== 1 ? 'es' : ''}
+            </h4>
+            <span className="text-[10px] text-[#999999]">
+              {images.filter(img => img.isMain).length} principal{images.filter(img => img.isMain).length !== 1 ? 'es' : ''}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {images.map((image) => (
               <div key={image.id} className="relative group">
-                <img
-                  src={image.url.startsWith('http') ? image.url : `http://localhost:3001${image.url}`}
-                  alt={image.altText || 'Imagen del producto'}
-                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                />
+                <div className="aspect-square rounded-xl overflow-hidden bg-[#F5F5F5] border border-[#E8E8E8]">
+                  <img
+                    src={image.url.startsWith('http') ? image.url : `http://localhost:3001${image.url}`}
+                    alt={image.altText || 'Imagen del producto'}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
                 
-                {/* Overlay con acciones */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                  {/* Botón de imagen principal */}
+                <div className="absolute inset-0 bg-[#1A1A1A]/0 group-hover:bg-[#1A1A1A]/50 
+                              transition-all duration-200 rounded-xl flex items-center justify-center gap-1.5 
+                              opacity-0 group-hover:opacity-100">
                   <button
                     onClick={() => handleSetMain(image.id)}
-                    className={`p-2 rounded-full ${
+                    className={`p-2 rounded-xl transition-all duration-200 ${
                       image.isMain 
-                        ? 'bg-yellow-400 text-white' 
-                        : 'bg-white text-gray-600 hover:text-yellow-500'
+                        ? 'bg-[#FFD93D] text-[#1A1A1A] shadow-lg' 
+                        : 'bg-white text-[#666666] hover:text-[#FFD93D] hover:scale-110'
                     }`}
                     title={image.isMain ? 'Imagen principal' : 'Establecer como principal'}
                   >
                     {image.isMain ? (
-                      <StarIconSolid className="h-5 w-5" />
+                      <StarIconSolid className="h-4 w-4" />
                     ) : (
-                      <StarIcon className="h-5 w-5" />
+                      <StarIcon className="h-4 w-4" />
                     )}
                   </button>
                   
-                  {/* Botón de eliminar */}
                   <button
                     onClick={() => handleDelete(image.id)}
-                    className="p-2 rounded-full bg-white text-red-600 hover:bg-red-50"
+                    className="p-2 rounded-xl bg-white text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white 
+                             transition-all duration-200 hover:scale-110"
                     title="Eliminar imagen"
                   >
-                    <TrashIcon className="h-5 w-5" />
+                    <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
                 
-                {/* Badge de imagen principal */}
                 {image.isMain && (
-                  <span className="absolute top-2 left-2 bg-yellow-400 text-white text-xs px-2 py-1 rounded-full">
-                    Principal
-                  </span>
+                  <div className="absolute top-2 left-2">
+                    <span className="bg-gradient-to-r from-[#FFD93D] to-[#FFD93D]/90 text-[#1A1A1A] text-[10px] px-2.5 py-1 
+                                   rounded-lg font-semibold shadow-lg flex items-center gap-1">
+                      <StarIconSolid className="h-3 w-3" />
+                      Principal
+                    </span>
+                  </div>
                 )}
               </div>
             ))}

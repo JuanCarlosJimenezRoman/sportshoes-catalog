@@ -8,11 +8,26 @@ export default function Toast() {
       toastOptions={{
         duration: 3000,
         style: {
-          background: '#fff',
-          color: '#333',
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-          borderRadius: '0.75rem',
-          padding: '1rem',
+          background: '#1A1A1A',
+          color: '#FFFFFF',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+          borderRadius: '1rem',
+          padding: '1rem 1.25rem',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          border: '1px solid #333333',
+        },
+        success: {
+          iconTheme: {
+            primary: '#00FF88',
+            secondary: '#1A1A1A',
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: '#FF6B6B',
+            secondary: '#1A1A1A',
+          },
         },
       }}
     />

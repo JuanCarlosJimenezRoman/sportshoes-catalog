@@ -241,4 +241,4 @@ export default function ProductFilters({ currentFilters, onFilterChange, onClear
       </div>
     </aside>
   );
-}
+} 

@@ -111,38 +111,40 @@ export default function SizeManager({ product, onUpdate }) {
   const activeCount = activeSizes.length;
   const inactiveCount = safeSizeTable.length - activeCount;
 
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-6">
+return (
+    <div className="bg-white rounded-2xl border border-[#E8E8E8] shadow-sm p-4 sm:p-5 md:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="min-w-0">
-          <h3 className="text-base md:text-lg font-semibold text-gray-900 truncate">
+          <h3 className="text-lg md:text-xl font-bold text-[#1A1A1A] flex items-center gap-2">
+            <span className="w-1.5 h-5 bg-gradient-to-b from-[#00FF88] to-[#7C3AED] rounded-full" />
             Gestión de Tallas
           </h3>
-          <p className="text-xs md:text-sm text-gray-500 mt-0.5 truncate">
-            {product.name} · {product.sku}
+          <p className="text-xs md:text-sm text-[#999999] mt-1 truncate">
+            {product.name} · <span className="font-medium text-[#666666]">{product.sku}</span>
           </p>
         </div>
         
-        {/* Controles */}
         <div className="flex flex-wrap items-center gap-2">
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="input-field text-xs md:text-sm w-28 md:w-32 py-1.5"
+            className="px-3 py-2 bg-[#F5F5F5] border border-[#E8E8E8] rounded-xl text-xs md:text-sm text-[#1A1A1A]
+                     focus:outline-none focus:border-[#7C3AED] transition-all duration-200"
             disabled={saving}
           >
-            <option value="infantil">Infantil</option>
-            <option value="mujer">Mujer</option>
-            <option value="hombre">Hombre</option>
-            <option value="unisex">Unisex</option>
+            <option value="infantil">👶 Infantil</option>
+            <option value="mujer">👩 Mujer</option>
+            <option value="hombre">👨 Hombre</option>
+            <option value="unisex">🔄 Unisex</option>
           </select>
           
           <div className="flex gap-1.5">
             <button
               onClick={handleActivateAll}
               disabled={saving || loading}
-              className="btn-primary text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2"
+              className="px-3 py-2 bg-gradient-to-r from-[#00FF88] to-[#00FF88]/80 text-[#1A1A1A] rounded-xl text-xs md:text-sm 
+                       font-semibold hover:shadow-lg hover:shadow-[#00FF88]/25 transition-all duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="hidden sm:inline">Activar Todas</span>
               <span className="sm:hidden">✓ Todos</span>
@@ -151,7 +153,9 @@ export default function SizeManager({ product, onUpdate }) {
             <button
               onClick={handleDeactivateAll}
               disabled={saving || loading || activeSizes.length === 0}
-              className="btn-outline text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2"
+              className="px-3 py-2 bg-white border-2 border-[#E8E8E8] rounded-xl text-xs md:text-sm font-medium
+                       text-[#666666] hover:border-[#FF6B6B] hover:text-[#FF6B6B] transition-all duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="hidden sm:inline">Desactivar Todas</span>
               <span className="sm:hidden">✕ Todos</span>
@@ -160,33 +164,39 @@ export default function SizeManager({ product, onUpdate }) {
         </div>
       </div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4">
-        <div className="bg-gray-50 rounded-lg p-2 md:p-3 text-center">
-          <p className="text-lg md:text-2xl font-bold text-gray-900">{safeSizeTable.length}</p>
-          <p className="text-[10px] md:text-xs text-gray-600">Total</p>
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
+        <div className="bg-[#F5F5F5] rounded-2xl p-3 md:p-4 text-center">
+          <p className="text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1">{safeSizeTable.length}</p>
+          <p className="text-[10px] md:text-xs text-[#666666] font-medium uppercase tracking-wider">Total</p>
         </div>
-        <div className="bg-green-50 rounded-lg p-2 md:p-3 text-center">
-          <p className="text-lg md:text-2xl font-bold text-green-700">{activeCount}</p>
-          <p className="text-[10px] md:text-xs text-green-600">Activas</p>
+        <div className="bg-gradient-to-br from-[#00FF88]/10 to-[#00FF88]/5 rounded-2xl p-3 md:p-4 text-center border border-[#00FF88]/20">
+          <p className="text-2xl md:text-3xl font-bold text-[#00FF88] mb-1">{activeCount}</p>
+          <p className="text-[10px] md:text-xs text-[#00FF88] font-medium uppercase tracking-wider">Activas</p>
         </div>
-        <div className="bg-red-50 rounded-lg p-2 md:p-3 text-center">
-          <p className="text-lg md:text-2xl font-bold text-red-700">{inactiveCount}</p>
-          <p className="text-[10px] md:text-xs text-red-600">Inactivas</p>
+        <div className="bg-gradient-to-br from-[#FF6B6B]/10 to-[#FF6B6B]/5 rounded-2xl p-3 md:p-4 text-center border border-[#FF6B6B]/20">
+          <p className="text-2xl md:text-3xl font-bold text-[#FF6B6B] mb-1">{inactiveCount}</p>
+          <p className="text-[10px] md:text-xs text-[#FF6B6B] font-medium uppercase tracking-wider">Inactivas</p>
         </div>
       </div>
 
-      {/* Grid de tallas */}
       {loading ? (
-        <div className="flex justify-center py-8 md:py-12">
-          <div className="w-6 h-6 md:w-8 md:h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+        <div className="flex justify-center py-12">
+          <div className="relative w-10 h-10">
+            <div className="absolute inset-0 rounded-full border-4 border-[#E8E8E8]" />
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#00FF88] animate-spin" />
+          </div>
         </div>
       ) : safeSizeTable.length === 0 ? (
-        <div className="text-center py-8 md:py-12 text-gray-500 text-sm">
-          No hay tallas para esta categoría
+        <div className="text-center py-12">
+          <div className="w-14 h-14 bg-[#F5F5F5] rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <svg className="w-7 h-7 text-[#999999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p className="text-[#999999] text-sm">No hay tallas para esta categoría</p>
         </div>
       ) : (
-        <div className="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-1 md:gap-2">
+        <div className="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2">
           {safeSizeTable.map((size) => {
             const sizeStr = String(size);
             const isActive = activeSizes.includes(sizeStr);
@@ -196,18 +206,18 @@ export default function SizeManager({ product, onUpdate }) {
                 onClick={() => handleToggleSize(sizeStr)}
                 disabled={saving}
                 className={`
-                  relative px-1.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm font-medium rounded-lg border-2 transition-all
+                  relative px-2 md:px-3 py-2.5 md:py-3 text-xs md:text-sm font-semibold rounded-xl transition-all duration-200
                   ${isActive 
-                    ? 'bg-green-50 border-green-500 text-green-700 hover:bg-green-100 active:bg-green-200' 
-                    : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400 active:bg-gray-100'
+                    ? 'bg-gradient-to-br from-[#00FF88]/20 to-[#7C3AED]/20 text-[#7C3AED] border-2 border-[#7C3AED]/50 shadow-md scale-105' 
+                    : 'bg-[#F5F5F5] text-[#999999] border-2 border-transparent hover:border-[#E8E8E8] hover:text-[#666666]'
                   }
                   ${saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 active:scale-95'}
                 `}
                 title={`Talla ${sizeStr} - ${isActive ? 'Activa' : 'Inactiva'}`}
               >
-                <span className="block leading-none">{sizeStr}</span>
+                <span className="block">{sizeStr}</span>
                 {isActive && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full border border-white"></span>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00FF88] rounded-full border-2 border-white shadow-sm" />
                 )}
               </button>
             );
@@ -215,17 +225,16 @@ export default function SizeManager({ product, onUpdate }) {
         </div>
       )}
 
-      {/* Leyenda */}
-      <div className="flex items-center gap-4 md:gap-6 mt-4 md:mt-6 pt-3 md:pt-4 border-t">
-        <div className="flex items-center gap-1.5 md:gap-2">
-          <div className="w-3 h-3 md:w-4 md:h-4 bg-green-50 border-2 border-green-500 rounded"></div>
-          <span className="text-[10px] md:text-sm text-gray-600">Activa</span>
+      <div className="flex items-center gap-6 mt-6 pt-4 border-t border-[#E8E8E8]">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 bg-gradient-to-br from-[#00FF88]/20 to-[#7C3AED]/20 border-2 border-[#7C3AED]/50 rounded-lg" />
+          <span className="text-xs md:text-sm text-[#666666] font-medium">Activa</span>
         </div>
-        <div className="flex items-center gap-1.5 md:gap-2">
-          <div className="w-3 h-3 md:w-4 md:h-4 bg-gray-50 border-2 border-gray-300 rounded"></div>
-          <span className="text-[10px] md:text-sm text-gray-600">Inactiva</span>
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 bg-[#F5F5F5] border-2 border-transparent rounded-lg" />
+          <span className="text-xs md:text-sm text-[#999999] font-medium">Inactiva</span>
         </div>
-        <div className="hidden sm:block text-[10px] md:text-xs text-gray-400 ml-auto">
+        <div className="hidden sm:block text-xs text-[#CCCCCC] ml-auto">
           Click para alternar
         </div>
       </div>

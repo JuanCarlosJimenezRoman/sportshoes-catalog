@@ -1,4 +1,3 @@
-
 export default function LoadingSpinner({ size = 'md', className = '' }) {
   const sizes = {
     sm: 'w-5 h-5',
@@ -9,7 +8,10 @@ export default function LoadingSpinner({ size = 'md', className = '' }) {
 
   return (
     <div className={`flex justify-center items-center ${className}`}>
-      <div className={`${sizes[size]} border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin`} />
+      <div className={`${sizes[size]} relative`}>
+        <div className="absolute inset-0 rounded-full border-4 border-[#E8E8E8]" />
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#00FF88] animate-spin" />
+      </div>
     </div>
   );
 }
