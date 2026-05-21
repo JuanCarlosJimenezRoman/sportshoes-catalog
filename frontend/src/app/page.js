@@ -35,7 +35,7 @@ export default function HomePage() {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Catálogo de Zapatillas
+              Catálogo de Tenis
             </h1>
             <p className="text-gray-600">
               {pagination.total} productos encontrados

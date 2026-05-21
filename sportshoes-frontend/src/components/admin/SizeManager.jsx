@@ -17,7 +17,6 @@ export default function SizeManager({ product, onUpdate }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Determinar categoría según género del producto
   useEffect(() => {
     if (product?.gender) {
       const genderMap = {
@@ -30,19 +29,15 @@ export default function SizeManager({ product, onUpdate }) {
     }
   }, [product]);
 
-  // Cargar tabla de tallas
   const loadSizeTable = useCallback(() => {
-    // Usar tabla local directamente
     const table = SIZE_TABLES[selectedCategory] || SIZE_TABLES['hombre'];
     setSizeTable(table);
     setLoading(false);
   }, [selectedCategory]);
 
-  // Cargar tallas activas del producto
   const loadActiveSizes = useCallback(() => {
     if (!product?.id) return;
     
-    // Usar las variantes del producto
     if (product.variants && Array.isArray(product.variants)) {
       const sizes = product.variants
         .filter(v => v.stock > 0)
@@ -61,7 +56,6 @@ export default function SizeManager({ product, onUpdate }) {
     loadActiveSizes();
   }, [loadActiveSizes]);
 
-  // Toggle de talla individual
   const handleToggleSize = async (size) => {
     if (!product?.id) return;
     
@@ -83,56 +77,59 @@ export default function SizeManager({ product, onUpdate }) {
         if (onUpdate) onUpdate();
       }
     } catch (error) {
-      // Si falla el endpoint, actualizar localmente de todos modos
       setActiveSizes(prev => {
         const sizeStr = size.toString();
         return prev.includes(sizeStr)
           ? prev.filter(s => s !== sizeStr)
           : [...prev, sizeStr];
       });
-      toast.error('Error al actualizar talla (cambio local)');
+      toast.error('Cambio local');
     } finally {
       setSaving(false);
     }
   };
 
-  // Activar todas las tallas
   const handleActivateAll = () => {
     setActiveSizes(sizeTable.map(s => s.toString()));
-    toast.success('Todas las tallas activadas (local)');
+    toast.success('Todas las tallas activadas');
   };
 
-  // Desactivar todas las tallas
   const handleDeactivateAll = () => {
     setActiveSizes([]);
-    toast.success('Todas las tallas desactivadas (local)');
+    toast.success('Todas las tallas desactivadas');
   };
 
   if (!product) {
-    return <p className="text-gray-500 text-sm p-4">Selecciona un producto para gestionar tallas</p>;
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+        <p className="text-gray-500 text-sm">Selecciona un producto para gestionar tallas</p>
+      </div>
+    );
   }
 
-  // Asegurar que sizeTable sea siempre un array
   const safeSizeTable = Array.isArray(sizeTable) ? sizeTable : [];
+  const activeCount = activeSizes.length;
+  const inactiveCount = safeSizeTable.length - activeCount;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+    <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-6">
+        <div className="min-w-0">
+          <h3 className="text-base md:text-lg font-semibold text-gray-900 truncate">
             Gestión de Tallas
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            Producto: {product.name} | SKU: {product.sku}
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5 truncate">
+            {product.name} · {product.sku}
           </p>
         </div>
         
-        {/* Selector de categoría */}
-        <div className="flex items-center gap-3">
+        {/* Controles */}
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="input-field text-sm w-32"
+            className="input-field text-xs md:text-sm w-28 md:w-32 py-1.5"
             disabled={saving}
           >
             <option value="infantil">Infantil</option>
@@ -141,48 +138,55 @@ export default function SizeManager({ product, onUpdate }) {
             <option value="unisex">Unisex</option>
           </select>
           
-          <button
-            onClick={handleActivateAll}
-            disabled={saving || loading}
-            className="btn-primary text-sm px-4 py-2"
-          >
-            Activar Todas
-          </button>
-          
-          <button
-            onClick={handleDeactivateAll}
-            disabled={saving || loading || activeSizes.length === 0}
-            className="btn-outline text-sm px-4 py-2"
-          >
-            Desactivar Todas
-          </button>
+          <div className="flex gap-1.5">
+            <button
+              onClick={handleActivateAll}
+              disabled={saving || loading}
+              className="btn-primary text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2"
+            >
+              <span className="hidden sm:inline">Activar Todas</span>
+              <span className="sm:hidden">✓ Todos</span>
+            </button>
+            
+            <button
+              onClick={handleDeactivateAll}
+              disabled={saving || loading || activeSizes.length === 0}
+              className="btn-outline text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2"
+            >
+              <span className="hidden sm:inline">Desactivar Todas</span>
+              <span className="sm:hidden">✕ Todos</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Estadísticas */}
-      <div className="flex items-center gap-4 mb-4 text-sm">
-        <span className="text-gray-600">
-          Total tallas: <strong className="text-gray-900">{safeSizeTable.length}</strong>
-        </span>
-        <span className="text-green-600">
-          Activas: <strong>{activeSizes.length}</strong>
-        </span>
-        <span className="text-red-600">
-          Inactivas: <strong>{safeSizeTable.length - activeSizes.length}</strong>
-        </span>
+      <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4">
+        <div className="bg-gray-50 rounded-lg p-2 md:p-3 text-center">
+          <p className="text-lg md:text-2xl font-bold text-gray-900">{safeSizeTable.length}</p>
+          <p className="text-[10px] md:text-xs text-gray-600">Total</p>
+        </div>
+        <div className="bg-green-50 rounded-lg p-2 md:p-3 text-center">
+          <p className="text-lg md:text-2xl font-bold text-green-700">{activeCount}</p>
+          <p className="text-[10px] md:text-xs text-green-600">Activas</p>
+        </div>
+        <div className="bg-red-50 rounded-lg p-2 md:p-3 text-center">
+          <p className="text-lg md:text-2xl font-bold text-red-700">{inactiveCount}</p>
+          <p className="text-[10px] md:text-xs text-red-600">Inactivas</p>
+        </div>
       </div>
 
       {/* Grid de tallas */}
       {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+        <div className="flex justify-center py-8 md:py-12">
+          <div className="w-6 h-6 md:w-8 md:h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
         </div>
       ) : safeSizeTable.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No hay tallas disponibles para esta categoría
+        <div className="text-center py-8 md:py-12 text-gray-500 text-sm">
+          No hay tallas para esta categoría
         </div>
       ) : (
-        <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+        <div className="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-1 md:gap-2">
           {safeSizeTable.map((size) => {
             const sizeStr = String(size);
             const isActive = activeSizes.includes(sizeStr);
@@ -192,18 +196,18 @@ export default function SizeManager({ product, onUpdate }) {
                 onClick={() => handleToggleSize(sizeStr)}
                 disabled={saving}
                 className={`
-                  relative px-3 py-2 text-sm font-medium rounded-lg border-2 transition-all
+                  relative px-1.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm font-medium rounded-lg border-2 transition-all
                   ${isActive 
-                    ? 'bg-green-50 border-green-500 text-green-700 hover:bg-green-100' 
-                    : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400'
+                    ? 'bg-green-50 border-green-500 text-green-700 hover:bg-green-100 active:bg-green-200' 
+                    : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400 active:bg-gray-100'
                   }
-                  ${saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
+                  ${saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 active:scale-95'}
                 `}
                 title={`Talla ${sizeStr} - ${isActive ? 'Activa' : 'Inactiva'}`}
               >
-                {sizeStr}
+                <span className="block leading-none">{sizeStr}</span>
                 {isActive && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                  <span className="absolute -top-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full border border-white"></span>
                 )}
               </button>
             );
@@ -212,14 +216,17 @@ export default function SizeManager({ product, onUpdate }) {
       )}
 
       {/* Leyenda */}
-      <div className="flex items-center gap-6 mt-6 pt-4 border-t text-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-50 border-2 border-green-500 rounded"></div>
-          <span className="text-gray-600">Talla activa</span>
+      <div className="flex items-center gap-4 md:gap-6 mt-4 md:mt-6 pt-3 md:pt-4 border-t">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-green-50 border-2 border-green-500 rounded"></div>
+          <span className="text-[10px] md:text-sm text-gray-600">Activa</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-50 border-2 border-gray-300 rounded"></div>
-          <span className="text-gray-600">Talla inactiva</span>
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-gray-50 border-2 border-gray-300 rounded"></div>
+          <span className="text-[10px] md:text-sm text-gray-600">Inactiva</span>
+        </div>
+        <div className="hidden sm:block text-[10px] md:text-xs text-gray-400 ml-auto">
+          Click para alternar
         </div>
       </div>
     </div>

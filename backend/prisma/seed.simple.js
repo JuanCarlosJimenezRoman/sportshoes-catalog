@@ -47,7 +47,7 @@ async function main() {
     // 3. Crear categorías
     console.log('\nCreando categorías...');
     const categoriesData = [
-      { name: 'Running', slug: 'running', description: 'Zapatillas para correr' },
+      { name: 'Running', slug: 'running', description: 'Tenis para correr' },
       { name: 'Training', slug: 'training', description: 'Entrenamiento y gimnasio' },
       { name: 'Basketball', slug: 'basketball', description: 'Básquetbol' },
       { name: 'Lifestyle', slug: 'lifestyle', description: 'Uso casual y urbano' }
@@ -69,7 +69,7 @@ async function main() {
     const productsData = [
       {
         name: 'Nike Air Max 270',
-        description: 'Zapatillas icónicas con amortiguación Air Max visible',
+        description: 'Tenis icónicas con amortiguación Air Max visible',
         price: 159.99,
         comparePrice: 179.99,
         brandId: brands[0].id,

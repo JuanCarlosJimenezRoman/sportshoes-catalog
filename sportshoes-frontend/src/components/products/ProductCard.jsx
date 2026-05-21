@@ -17,12 +17,14 @@ export default function ProductCard({ product }) {
   };
 
   const imageUrl = getImageUrl(mainImage);
+  const availableSizes = product.availableSizes || 
+    (product.variants ? product.variants.filter(v => v.stock > 0).map(v => v.size) : []);
+  const totalStock = product.totalStock || 
+    (product.variants ? product.variants.reduce((sum, v) => sum + v.stock, 0) : 0);
   
   return (
     <Link href={`/product/${product.slug}`} className="card group flex flex-col">
-      {/* Image Container - 3:4 ratio on mobile, square on desktop */}
       <div className="relative aspect-[3/4] md:aspect-square overflow-hidden bg-gray-50">
-        {/* Skeleton loader */}
         {!imgLoaded && imageUrl && !imgError && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse" />
         )}
@@ -45,22 +47,22 @@ export default function ProductCard({ product }) {
           </div>
         )}
         
-        {/* Badges - Smaller on mobile */}
+        {/* Badges */}
         <div className="absolute top-1.5 md:top-2 left-1.5 md:left-2 flex flex-wrap gap-1 z-10">
           {product.comparePrice && product.comparePrice > product.price && (
             <span className="bg-accent-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium shadow-sm">
               -{Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}%
             </span>
           )}
-          {product.isFeatured && (
-            <span className="bg-primary-600 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium shadow-sm">
-              Destacado
+          {totalStock <= 5 && totalStock > 0 && (
+            <span className="bg-yellow-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium shadow-sm">
+              ¡Últimas!
             </span>
           )}
         </div>
 
-        {/* Stock badge */}
-        {product.variants && product.variants.length > 0 && product.variants.every(v => v.stock === 0) && (
+        {/* Agotado overlay */}
+        {totalStock === 0 && (
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
             <span className="bg-white text-gray-900 text-xs md:text-sm font-semibold px-3 md:px-4 py-1.5 md:py-2 rounded-lg">
               Agotado
@@ -69,7 +71,6 @@ export default function ProductCard({ product }) {
         )}
       </div>
 
-      {/* Info - Tighter padding on mobile */}
       <div className="p-2.5 md:p-4 flex-1 flex flex-col">
         <p className="text-[10px] md:text-xs text-gray-500 uppercase tracking-wider mb-0.5 md:mb-1">
           {product.brand?.name || 'Marca'}
@@ -79,7 +80,7 @@ export default function ProductCard({ product }) {
         </h3>
         
         {/* Price */}
-        <div className="flex items-baseline gap-1.5 md:gap-2 mb-2 md:mb-3 mt-auto">
+        <div className="flex items-baseline gap-1.5 md:gap-2 mb-2 md:mb-3">
           <span className="text-sm md:text-lg font-bold text-gray-900">
             {formatPrice(product.price)}
           </span>
@@ -90,7 +91,20 @@ export default function ProductCard({ product }) {
           )}
         </div>
 
-        {/* Colors - Hidden on very small screens */}
+        {/* Stock info */}
+        <div className="mb-2 md:mb-3">
+          {totalStock > 0 ? (
+            <p className="text-[10px] md:text-xs text-gray-500">
+              {totalStock} en stock · {availableSizes.length} tallas
+            </p>
+          ) : (
+            <p className="text-[10px] md:text-xs text-red-500 font-medium">
+              Sin stock disponible
+            </p>
+          )}
+        </div>
+
+        {/* Colors */}
         {colors.length > 0 && (
           <div className="hidden sm:flex items-center gap-1 md:gap-1.5 mb-2 md:mb-3">
             {colors.slice(0, 4).map((color, index) => (
@@ -107,27 +121,20 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        {/* Sizes */}
-        {product.variants && product.variants.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {product.variants
-              .filter(v => v.stock > 0)
-              .slice(0, 3)
-              .map((variant, index) => (
-                <span
-                  key={index}
-                  className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded font-medium ${
-                    variant.stock <= 3 
-                      ? 'bg-yellow-50 text-yellow-700' 
-                      : 'bg-green-50 text-green-700'
-                  }`}
-                >
-                  {variant.size}
-                </span>
-              ))}
-            {product.variants.filter(v => v.stock > 0).length > 3 && (
+        {/* Available sizes */}
+        {availableSizes.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-auto">
+            {availableSizes.slice(0, 3).map((size, index) => (
+              <span
+                key={index}
+                className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded bg-green-50 text-green-700 font-medium"
+              >
+                {size}
+              </span>
+            ))}
+            {availableSizes.length > 3 && (
               <span className="text-[10px] md:text-xs text-gray-500 px-1.5 py-0.5">
-                +{product.variants.filter(v => v.stock > 0).length - 3}
+                +{availableSizes.length - 3}
               </span>
             )}
           </div>

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import api from '../lib/api';
+import api from '@/lib/api';
 
 export function useProducts(initialFilters = {}) {
   const [products, setProducts] = useState([]);
@@ -19,6 +19,8 @@ export function useProducts(initialFilters = {}) {
     gender: '',
     minPrice: '',
     maxPrice: '',
+    sizes: '',
+    hideOutOfStock: false,
     sortBy: 'createdAt',
     sortOrder: 'desc',
     page: 1,
@@ -30,9 +32,14 @@ export function useProducts(initialFilters = {}) {
     try {
       setLoading(true);
       setError(null);
+      
       const cleanFilters = Object.entries(filters).reduce((acc, [key, value]) => {
-        if (value !== '' && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined && value !== false) {
           acc[key] = value;
+        }
+        // Incluir hideOutOfStock solo si es true
+        if (key === 'hideOutOfStock' && value === true) {
+          acc[key] = true;
         }
         return acc;
       }, {});
@@ -69,6 +76,8 @@ export function useProducts(initialFilters = {}) {
       gender: '',
       minPrice: '',
       maxPrice: '',
+      sizes: '',
+      hideOutOfStock: false,
       sortBy: 'createdAt',
       sortOrder: 'desc',
       page: 1,
@@ -140,5 +149,3 @@ export function useFilters() {
 
   return { filters, loading };
 }
-
-export default useProducts;

@@ -74,7 +74,7 @@ export default function ProductFilters({ currentFilters, onFilterChange, onClear
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar zapatillas..."
+                placeholder="Buscar Tenis..."
                 className="input-field pl-10"
               />
               <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />

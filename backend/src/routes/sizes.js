@@ -11,5 +11,6 @@ router.post('/toggle', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), sizeCont
 router.post('/batch-toggle', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), sizeController.batchToggleSizes);
 router.post('/activate-all', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), sizeController.activateAllSizes);
 router.post('/deactivate-all', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), sizeController.deactivateAllSizes);
+router.post('/update-multiple', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), sizeController.updateMultipleVariants);
 
 export default router;

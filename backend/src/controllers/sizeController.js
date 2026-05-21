@@ -4,7 +4,7 @@ import { prisma } from '../server.js';
 const SIZE_RANGES = {
   infantil: { min: 17, max: 22.5, step: 0.5 },
   adolescente: { min: 23, max: 25.5, step: 0.5 },
-  adulto: { min: 26, max: 32, step: 0.5 }
+  adulto: { min: 23, max: 32, step: 0.5 }
 };
 
 function generateSizes(range) {
@@ -14,6 +14,8 @@ function generateSizes(range) {
   }
   return sizes;
 }
+
+// src/controllers/sizeController.js
 
 export const getSizeTable = async (req, res, next) => {
   try {
@@ -46,6 +48,7 @@ export const getSizeTable = async (req, res, next) => {
         sku: product.sku,
         image: product.images[0]?.url || null,
         name: product.name,
+        gender: product.gender,
         sizes: sizeAvailability
       };
     });
@@ -234,6 +237,67 @@ export const getSizeRanges = async (req, res, next) => {
     }));
 
     res.json({ success: true, data: ranges });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateMultipleVariants = async (req, res, next) => {
+  try {
+    const updates = req.body;
+    const results = [];
+
+    for (const update of updates) {
+      const { productId, sizes } = update;
+      
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { sku: true }
+      });
+
+      if (!product) {
+        results.push({ productId, error: 'Producto no encontrado' });
+        continue;
+      }
+
+      for (const [size, active] of Object.entries(sizes)) {
+        const existingVariant = await prisma.productVariant.findFirst({
+          where: {
+            productId,
+            size: size.toString()
+          }
+        });
+
+        if (existingVariant) {
+          await prisma.productVariant.update({
+            where: { id: existingVariant.id },
+            data: {
+              isActive: active,
+              stock: active ? Math.max(existingVariant.stock, 1) : 0
+            }
+          });
+        } else if (active) {
+          await prisma.productVariant.create({
+            data: {
+              sku: `${product.sku}-${size}`,
+              size: size.toString(),
+              color: 'default',
+              colorName: 'Único',
+              stock: 1,
+              isActive: true,
+              productId
+            }
+          });
+        }
+      }
+
+      results.push({ productId, success: true });
+    }
+
+    res.json({
+      success: true,
+      data: results
+    });
   } catch (error) {
     next(error);
   }

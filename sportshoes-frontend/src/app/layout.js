@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'SportShoes - Tu tienda de calzado deportivo',
-  description: 'Encuentra las mejores zapatillas deportivas de marcas como Nike, Adidas, Puma y más.',
+  description: 'Encuentra las mejores Tenis deportivas de marcas como Nike, Adidas, Puma y más.',
 };
 
 export default function RootLayout({ children }) {

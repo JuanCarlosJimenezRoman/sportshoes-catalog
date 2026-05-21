@@ -9,6 +9,33 @@ export class QueryBuilder {
     this.pagination = { skip: 0, take: 12 };
   }
 
+  addStockFilter() {
+    if (this.query.inStock === 'true') {
+      this.where.variants = {
+        some: {
+          stock: { gt: 0 },
+          isActive: true
+        }
+      };
+    }
+    return this;
+  }
+
+  addSizeFilter() {
+    if (this.query.sizes) {
+      const sizes = this.query.sizes.split(',').map(s => s.trim());
+      this.where.variants = {
+        ...this.where.variants,
+        some: {
+          ...this.where.variants?.some,
+          size: { in: sizes }
+        }
+      };
+    }
+    return this;
+  }
+
+
   addSearch(fields) {
     if (this.query.search) {
       this.where.OR = fields.map(field => ({

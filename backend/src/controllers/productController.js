@@ -30,6 +30,28 @@ export const getProducts = async (req, res, next) => {
       });
 
     const queryOptions = queryBuilder.build();
+
+    if (req.query.hideOutOfStock === 'true') {
+      queryOptions.where.variants = {
+        some: {
+          stock: { gt: 0 },
+          isActive: true
+        }
+      };
+    }
+
+    if (req.query.sizes) {
+      const sizes = req.query.sizes.split(',').map(s => s.trim());
+      queryOptions.where.variants = {
+        ...queryOptions.where.variants,
+        some: {
+          ...queryOptions.where.variants?.some,
+          size: { in: sizes },
+          stock: { gt: req.query.hideOutOfStock === 'true' ? 0 : undefined }
+        }
+      };
+    }
+
     const [products, total] = await Promise.all([
       prisma.product.findMany(queryOptions),
       prisma.product.count({ where: queryOptions.where })
@@ -44,7 +66,11 @@ export const getProducts = async (req, res, next) => {
         ...product,
         colors: JSON.parse(product.colors || '[]'),
         materials: JSON.parse(product.materials || '[]'),
-        tags: JSON.parse(product.tags || '[]')
+        tags: JSON.parse(product.tags || '[]'),
+        totalStock: product.variants.reduce((sum, v) => sum + v.stock, 0),
+        availableSizes: product.variants
+          .filter(v => v.stock > 0)
+          .map(v => v.size)
       })),
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     });

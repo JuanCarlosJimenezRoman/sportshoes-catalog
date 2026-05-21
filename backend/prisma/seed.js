@@ -154,7 +154,7 @@ async function main() {
       {
         name: 'Running',
         slug: 'running',
-        description: 'Zapatillas diseñadas para correr con máxima comodidad y rendimiento',
+        description: 'Tenis diseñadas para correr con máxima comodidad y rendimiento',
         image: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=300&h=300&fit=crop',
         children: [
           {
@@ -177,7 +177,7 @@ async function main() {
       {
         name: 'Training',
         slug: 'training',
-        description: 'Zapatillas versátiles para entrenamiento funcional y gimnasio',
+        description: 'Tenis versátiles para entrenamiento funcional y gimnasio',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop',
         children: [
           {
@@ -201,7 +201,7 @@ async function main() {
       {
         name: 'Fútbol',
         slug: 'futbol',
-        description: 'Botines y zapatillas para el deporte más popular del mundo',
+        description: 'Botines y Tenis para el deporte más popular del mundo',
         image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=300&h=300&fit=crop',
         children: [
           {
@@ -273,8 +273,8 @@ async function main() {
         isActive: true,
         isFeatured: true,
         tags: ['running', 'amortiguación', 'diario', 'entrenamiento', 'versátil'],
-        seoTitle: 'Nike Air Zoom Pegasus 40 - Zapatillas de Running Versátiles | SportShoes',
-        seoDescription: 'Compra las Nike Air Zoom Pegasus 40, las zapatillas de running más versátiles con amortiguación Zoom Air. Envío gratis + cambios sin costo.',
+        seoTitle: 'Nike Air Zoom Pegasus 40 - Tenis de Running Versátiles | SportShoes',
+        seoDescription: 'Compra las Nike Air Zoom Pegasus 40, las Tenis de running más versátiles con amortiguación Zoom Air. Envío gratis + cambios sin costo.',
         imageType: 'running',
         variants: [
           { size: '38', color: 'black', stock: 15, price: 129.99 },
@@ -320,7 +320,7 @@ async function main() {
       },
       {
         name: 'Nike LeBron 21',
-        description: 'Las zapatillas signature de LeBron James para la temporada 2024. Diseñadas con tecnología de punta para jugadores que dominan la cancha. La amortiguación Zoom Air combinada con la espuma Cushlon proporciona una pisada explosiva para los movimientos más dinámicos.',
+        description: 'Las Tenis signature de LeBron James para la temporada 2024. Diseñadas con tecnología de punta para jugadores que dominan la cancha. La amortiguación Zoom Air combinada con la espuma Cushlon proporciona una pisada explosiva para los movimientos más dinámicos.',
         price: 199.99,
         comparePrice: 219.99,
         cost: 100.00,
@@ -333,7 +333,7 @@ async function main() {
         isActive: true,
         isFeatured: true,
         tags: ['basketball', 'lebron', 'profesional', 'alto rendimiento'],
-        seoTitle: 'Nike LeBron 21 - Zapatillas de Basketball Profesional | SportShoes',
+        seoTitle: 'Nike LeBron 21 - Tenis de Basketball Profesional | SportShoes',
         seoDescription: 'Domina la cancha con las Nike LeBron 21. Tecnología Zoom Air y diseño signature de LeBron James.',
         imageType: 'basketball',
         variants: [
@@ -349,7 +349,7 @@ async function main() {
       // ADIDAS PRODUCTS
       {
         name: 'Adidas Ultraboost Light',
-        description: 'La evolución más ligera del icónico Ultraboost. Con la nueva espuma Light BOOST, estas zapatillas ofrecen una amortiguación excepcional con un peso reducido. El upper Primeknit+ se adapta como un calcetín, proporcionando un ajuste perfecto y transpirable.',
+        description: 'La evolución más ligera del icónico Ultraboost. Con la nueva espuma Light BOOST, estas Tenis ofrecen una amortiguación excepcional con un peso reducido. El upper Primeknit+ se adapta como un calcetín, proporcionando un ajuste perfecto y transpirable.',
         price: 179.99,
         comparePrice: 199.99,
         cost: 90.00,
@@ -435,7 +435,7 @@ async function main() {
       },
       {
         name: 'Puma Deviate Nitro 2',
-        description: 'Zapatillas de running con placa de carbono y espuma NITRO Elite para máxima propulsión. Diseñadas para corredores que buscan batir sus récords personales en carreras de larga distancia. La tecnología PUMAGRIP ofrece tracción excepcional.',
+        description: 'Tenis de running con placa de carbono y espuma NITRO Elite para máxima propulsión. Diseñadas para corredores que buscan batir sus récords personales en carreras de larga distancia. La tecnología PUMAGRIP ofrece tracción excepcional.',
         price: 199.99,
         comparePrice: 219.99,
         cost: 100.00,
@@ -448,7 +448,7 @@ async function main() {
         isActive: true,
         isFeatured: false,
         tags: ['running', 'competencia', 'carbono', 'velocidad'],
-        seoTitle: 'Puma Deviate Nitro 2 - Zapatillas con Placa de Carbono | SportShoes',
+        seoTitle: 'Puma Deviate Nitro 2 - Tenis con Placa de Carbono | SportShoes',
         seoDescription: 'Rompe tus récords con Puma Deviate Nitro 2. Tecnología NITRO Elite y placa de carbono para máxima velocidad.',
         imageType: 'running',
         variants: [
@@ -522,7 +522,7 @@ async function main() {
       // UNDER ARMOUR PRODUCTS
       {
         name: 'Under Armour HOVR Phantom 3',
-        description: 'Zapatillas de running con conectividad Bluetooth para tracking de métricas de carrera. La amortiguación HOVR proporciona una sensación de gravedad cero que elimina el impacto. El upper UA Storm es repelente al agua para cualquier condición.',
+        description: 'Tenis de running con conectividad Bluetooth para tracking de métricas de carrera. La amortiguación HOVR proporciona una sensación de gravedad cero que elimina el impacto. El upper UA Storm es repelente al agua para cualquier condición.',
         price: 149.99,
         comparePrice: 169.99,
         cost: 75.00,
@@ -550,7 +550,7 @@ async function main() {
       },
       {
         name: 'Under Armour Project Rock 5',
-        description: 'Las zapatillas de entrenamiento diseñadas con Dwayne "The Rock" Johnson. Construidas para soportar los entrenamientos más intensos con estabilidad superior. La suela UA TriBase maximiza el contacto con el suelo para mejor tracción.',
+        description: 'Las Tenis de entrenamiento diseñadas con Dwayne "The Rock" Johnson. Construidas para soportar los entrenamientos más intensos con estabilidad superior. La suela UA TriBase maximiza el contacto con el suelo para mejor tracción.',
         price: 159.99,
         comparePrice: null,
         cost: 80.00,
@@ -578,7 +578,7 @@ async function main() {
       // REEBOK PRODUCTS
       {
         name: 'Reebok Nano X4',
-        description: 'La última evolución de las zapatillas de entrenamiento más versátiles del mercado. Diseñadas para CrossFit y entrenamiento funcional con la tecnología Flexweave que proporciona durabilidad y flexibilidad donde más se necesita.',
+        description: 'La última evolución de las Tenis de entrenamiento más versátiles del mercado. Diseñadas para CrossFit y entrenamiento funcional con la tecnología Flexweave que proporciona durabilidad y flexibilidad donde más se necesita.',
         price: 139.99,
         comparePrice: 149.99,
         cost: 70.00,
@@ -591,8 +591,8 @@ async function main() {
         isActive: true,
         isFeatured: true,
         tags: ['training', 'crossfit', 'nano', 'funcional', 'versátil'],
-        seoTitle: 'Reebok Nano X4 - Zapatillas CrossFit Elite | SportShoes',
-        seoDescription: 'Rinde al máximo con Reebok Nano X4. Las zapatillas oficiales de CrossFit. Tecnología Flexweave.',
+        seoTitle: 'Reebok Nano X4 - Tenis CrossFit Elite | SportShoes',
+        seoDescription: 'Rinde al máximo con Reebok Nano X4. Las Tenis oficiales de CrossFit. Tecnología Flexweave.',
         imageType: 'training',
         variants: [
           { size: '37', color: 'black', stock: 10, price: 139.99 },
@@ -607,7 +607,7 @@ async function main() {
       },
       {
         name: 'Reebok Club C 85 Vintage',
-        description: 'Las zapatillas de tenis que se convirtieron en ícono del estilo casual. El diseño minimalista con cuero suave y la suela de goma vulcanizada las hacen perfectas para cualquier ocasión, desde la cancha hasta la calle.',
+        description: 'Las Tenis de tenis que se convirtieron en ícono del estilo casual. El diseño minimalista con cuero suave y la suela de goma vulcanizada las hacen perfectas para cualquier ocasión, desde la cancha hasta la calle.',
         price: 84.99,
         comparePrice: 94.99,
         cost: 42.00,
@@ -709,13 +709,13 @@ async function main() {
     const allProducts = await prisma.product.findMany({ take: 8 });
     
     const reviewsData = [
-      { rating: 5, title: '¡Excelentes zapatillas!', comment: 'Las compré para mi entrenamiento diario y no me arrepiento. La amortiguación es increíble y se sienten muy livianas. Las recomiendo totalmente.', userName: 'Carlos M.', userEmail: 'carlos@email.com', isVerified: true },
+      { rating: 5, title: '¡Excelentes Tenis!', comment: 'Las compré para mi entrenamiento diario y no me arrepiento. La amortiguación es increíble y se sienten muy livianas. Las recomiendo totalmente.', userName: 'Carlos M.', userEmail: 'carlos@email.com', isVerified: true },
       { rating: 4, title: 'Muy buenas', comment: 'La calidad es excelente como siempre. Solo que me quedaron un poco ajustadas. Recomiendo pedir media talla más.', userName: 'Ana L.', userEmail: 'ana@email.com', isVerified: true },
       { rating: 5, title: 'Las mejores para correr', comment: 'Llevo 3 meses usándolas para running y están como nuevas. La amortiguación sigue intacta y el ajuste es perfecto.', userName: 'Pedro R.', userEmail: 'pedro@email.com', isVerified: true },
       { rating: 5, title: 'Estilo y comodidad', comment: 'Las uso para el día a día y son súper cómodas. Además el diseño es precioso, combinan con todo.', userName: 'María G.', userEmail: 'maria@email.com', isVerified: true },
       { rating: 4, title: 'Buena compra', comment: 'Excelente relación calidad-precio. Los materiales se sienten premium y son muy cómodas para caminar.', userName: 'Luis F.', userEmail: 'luis@email.com', isVerified: true },
       { rating: 5, title: 'Increíble rendimiento', comment: 'Las uso para correr maratones y son las mejores que he tenido. Gran retorno de energía.', userName: 'Sofía M.', userEmail: 'sofia@email.com', isVerified: false },
-      { rating: 3, title: 'Buenas pero caras', comment: 'Son buenas zapatillas pero por el precio esperaba materiales más premium. Cumplen su función.', userName: 'Diego R.', userEmail: 'diego@email.com', isVerified: true },
+      { rating: 3, title: 'Buenas pero caras', comment: 'Son buenas Tenis pero por el precio esperaba materiales más premium. Cumplen su función.', userName: 'Diego R.', userEmail: 'diego@email.com', isVerified: true },
       { rating: 5, title: 'Perfectas para el gym', comment: 'Las uso para crossfit y entrenamiento funcional. Excelente estabilidad y agarre.', userName: 'Valentina S.', userEmail: 'valentina@email.com', isVerified: true }
     ];
 
