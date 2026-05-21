@@ -1,6 +1,7 @@
 'use client';
 import { useProduct } from '@/hooks/useProducts';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import OrderButton from '@/components/products/OrderButton';
 import { formatPrice, parseJSON, getStockStatus } from '@/lib/utils';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { useState } from 'react';
@@ -172,6 +173,10 @@ export default function ProductPage({ params }) {
                   <span className="w-1 h-4 bg-[#00FF88] rounded-full" />
                   Tallas disponibles
                 </h3>
+                {/* Botón de pedido - NUEVO */}
+<div className="mb-6">
+  <OrderButton product={product} selectedSize={selectedSize} />
+</div>
                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                   {variants.map((variant, index) => {
                     const stockStatus = getStockStatus(variant.stock);

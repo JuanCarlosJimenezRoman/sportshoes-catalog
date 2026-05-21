@@ -8,6 +8,7 @@ import categoryRoutes from './routes/categories.js';
 import brandRoutes from './routes/brands.js';
 import authRoutes from './routes/auth.js';
 import sizeRoutes from './routes/sizes.js';
+import orderRoutes from './routes/orders.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -36,7 +37,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/sizes', sizeRoutes);
-
+app.use('/api/orders', orderRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
