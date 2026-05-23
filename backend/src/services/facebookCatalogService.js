@@ -82,48 +82,52 @@ class FacebookCatalogService {
     }
   }
 
-  formatProductForFacebook(product) {
-    const mainImage = product.images?.find(img => img.isMain) || product.images?.[0];
-    const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    
-    const totalStock = product.variants
-      ?.filter(v => v.isActive)
-      .reduce((sum, v) => sum + v.stock, 0) || 0;
+formatProductForFacebook(product) {
+  const mainImage = product.images?.find(img => img.isMain) || product.images?.[0];
+  const imageUrl = mainImage?.url
+    ? `${process.env.BASE_URL || 'http://localhost:3001'}${mainImage.url}`
+    : '';
+  const productUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/product/${product.slug}`;
 
-    return {
-      retailer_id: product.sku,
-      name: product.name,
-      description: (product.description || '').substring(0, 999),
-      image_url: mainImage?.url ? `${baseUrl}${mainImage.url}` : '',
-      additional_image_urls: product.images
-        ?.filter(img => !img.isMain)
-        .map(img => `${baseUrl}${img.url}`)
-        .slice(0, 10) || [],
-      url: `${frontendUrl}/product/${product.slug}`,
-      brand: product.brand?.name || '',
-      condition: 'new',
-      availability: totalStock > 0 ? 'in stock' : 'out of stock',
-      inventory: totalStock,
-      price: `${product.price} MXN`,
-      currency: 'MXN',
-      gender: this.mapGender(product.gender),
-      age_group: product.gender === 'KIDS' ? 'kids' : 'adult',
-      google_product_category: 187,
-      product_type: product.category?.name || '',
-      color: Array.isArray(product.colors) ? product.colors[0] || '' : '',
-      size: product.variants
-        ?.filter(v => v.stock > 0 && v.isActive)
-        .map(v => v.size)
-        .join(',') || '',
-      custom_data: JSON.stringify({
-        sku: product.sku,
-        category: product.category?.name,
-        materials: Array.isArray(product.materials) ? product.materials.join(',') : ''
-      })
-    };
+  const totalStock = product.variants
+    ?.filter(v => v.isActive)
+    ?.reduce((sum, v) => sum + v.stock, 0) || 0;
+
+  // Precio como número entero en centavos (Facebook espera el valor * 100)
+  const priceAmount = Math.round(parseFloat(product.price) * 100);
+  const comparePriceAmount = product.comparePrice 
+    ? Math.round(parseFloat(product.comparePrice) * 100) 
+    : null;
+
+  const payload = {
+    retailer_id: product.sku,
+    name: product.name.substring(0, 150),
+    description: (product.description || product.name).substring(0, 5000),
+    image_url: imageUrl,
+    url: productUrl,
+    brand: product.brand?.name || 'SportShoes',
+    condition: 'new',
+    availability: totalStock > 0 ? 'in stock' : 'out of stock',
+    inventory: totalStock,
+    price: priceAmount,
+    currency: 'MXN',
+    gender: this.mapGender(product.gender),
+    age_group: product.gender === 'KIDS' ? 'kids' : 'adult',
+    google_product_category: 187,
+    product_type: product.category?.name || 'Shoes',
+    color: Array.isArray(product.colors) ? product.colors[0] || '' : '',
+    size: product.variants
+      ?.filter(v => v.stock > 0 && v.isActive)
+      ?.map(v => v.size)
+      ?.join(',') || ''
+  };
+
+  if (comparePriceAmount) {
+    payload.sale_price = comparePriceAmount;
   }
 
+  return payload;
+}
   mapGender(gender) {
     const map = { 'MEN': 'male', 'WOMEN': 'female', 'UNISEX': 'unisex', 'KIDS': 'unisex' };
     return map[gender] || 'unisex';
@@ -181,6 +185,28 @@ class FacebookCatalogService {
       return { success: false, error: error.response?.data?.error?.message || error.message };
     }
   }
+  
+  async batchSync(products) {
+  const requests = products.map(product => ({
+    method: 'UPDATE',
+    retailer_id: product.sku,
+    data: this.formatProductForFacebook(product)
+  }));
+
+  try {
+    const response = await axios.post(
+      `${this.baseURL}/batch`,
+      { requests },
+      { headers: this.getHeaders() }
+    );
+
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error('Batch error:', error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
+  }
 }
+}
+
 
 export default new FacebookCatalogService();

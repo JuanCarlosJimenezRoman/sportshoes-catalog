@@ -20,7 +20,7 @@ export async function processProductExcel(filePath, userId) {
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     try {
-      const product = await createProductFromRow(row, userId, i + 2);
+      const product = await createProductFromRow(row, userId);
       results.products.push(product);
       results.success++;
     } catch (error) {
@@ -35,7 +35,7 @@ export async function processProductExcel(filePath, userId) {
   return results;
 }
 
-async function createProductFromRow(row, userId, rowNumber) {
+async function createProductFromRow(row, userId) {
   const sku = row.SKU?.toString().trim();
   const name = row.NOMBRE?.toString().trim();
   const brandName = row.MARCA?.toString().trim();
@@ -79,7 +79,7 @@ async function createProductFromRow(row, userId, rowNumber) {
     category = await prisma.category.create({ data: { name: categoryName, slug } });
   }
 
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
   const product = await prisma.product.create({
     data: {
@@ -94,9 +94,9 @@ async function createProductFromRow(row, userId, rowNumber) {
       brandId: brand.id,
       categoryId: category.id,
       userId,
-      colors: JSON.stringify(parseArrayField(row.COLORES)),
-      materials: JSON.stringify(parseArrayField(row.MATERIALES)),
-      tags: JSON.stringify(parseArrayField(row.TAGS)),
+      colors: parseArrayField(row.COLORES),
+      materials: parseArrayField(row.MATERIALES),
+      tags: parseArrayField(row.TAGS),
       isActive: parseBoolean(row.ACTIVO, true),
       isFeatured: parseBoolean(row.DESTACADO, false)
     },
@@ -110,12 +110,12 @@ async function createProductFromRow(row, userId, rowNumber) {
     imagesCreated = await processProductImages(product, imagePaths, sku);
   }
 
+  let variantsCreated = 0;
   const sizeColumns = Object.keys(row).filter(key => {
     const val = parseFloat(key);
     return !isNaN(val) && val >= 17 && val <= 32;
   });
 
-  let variantsCreated = 0;
   if (sizeColumns.length > 0) {
     const variantsToCreate = [];
     
@@ -136,12 +136,20 @@ async function createProductFromRow(row, userId, rowNumber) {
     }
 
     if (variantsToCreate.length > 0) {
-      await prisma.productVariant.createMany({ data: variantsToCreate });
+      for (const variant of variantsToCreate) {
+        await prisma.productVariant.create({ data: variant });
+      }
       variantsCreated = variantsToCreate.length;
     }
   }
 
-  return { ...product, variantsCreated, imagesCreated };
+  return { 
+    id: product.id,
+    sku: product.sku, 
+    name: product.name, 
+    variantsCreated, 
+    imagesCreated 
+  };
 }
 
 async function processProductImages(product, imagePaths, sku) {
