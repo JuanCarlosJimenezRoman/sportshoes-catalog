@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -14,9 +14,11 @@ model User {
   password  String
   name      String
   role      String    @default("ADMIN")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   products  Product[]
+
+  @@map("users")
 }
 
 model Category {
@@ -25,13 +27,15 @@ model Category {
   slug        String     @unique
   description String?
   image       String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  isActive    Boolean    @default(true) @map("is_active")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
   products    Product[]
-  parentId    String?
+  parentId    String?    @map("parent_id")
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children    Category[] @relation("CategoryHierarchy")
+
+  @@map("categories")
 }
 
 model Brand {
@@ -41,10 +45,12 @@ model Brand {
   logo        String?
   description String?
   website     String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   products    Product[]
+
+  @@map("brands")
 }
 
 model Product {
@@ -52,40 +58,44 @@ model Product {
   sku            String          @unique
   name           String
   slug           String          @unique
-  description    String
-  price          Float
-  comparePrice   Float?
-  cost           Float?
-  brandId        String
+  description    String          @default("")
+  price          Decimal         @db.Decimal(10, 2)
+  comparePrice   Decimal?        @map("compare_price") @db.Decimal(10, 2)
+  cost           Decimal?        @db.Decimal(10, 2)
+  brandId        String          @map("brand_id")
   brand          Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  categoryId     String
+  categoryId     String          @map("category_id")
   category       Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  userId         String
+  userId         String          @map("user_id")
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   gender         String          @default("UNISEX")
-  colors         String          @default("[]")
-  materials      String          @default("[]")
-  isActive       Boolean         @default(true)
-  isFeatured     Boolean         @default(false)
-  tags           String          @default("[]")
-  seoTitle       String?
-  seoDescription String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  colors         Json            @default("[]")
+  materials      Json            @default("[]")
+  isActive       Boolean         @default(true) @map("is_active")
+  isFeatured     Boolean         @default(false) @map("is_featured")
+  tags           Json            @default("[]")
+  seoTitle       String?         @map("seo_title")
+  seoDescription String?         @map("seo_description")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
   images         ProductImage[]
   variants       ProductVariant[]
   reviews        Review[]
+
+  @@map("products")
 }
 
 model ProductImage {
   id        String   @id @default(cuid())
   url       String
-  altText   String?
+  altText   String?  @map("alt_text")
   position  Int      @default(0)
-  isMain    Boolean  @default(false)
-  productId String
+  isMain    Boolean  @default(false) @map("is_main")
+  productId String   @map("product_id")
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("product_images")
 }
 
 model ProductVariant {
@@ -93,12 +103,14 @@ model ProductVariant {
   sku       String   @unique
   size      String
   color     String
-  colorName String?
+  colorName String?  @map("color_name")
   stock     Int      @default(0)
-  price     Float?
-  productId String
+  price     Decimal? @db.Decimal(10, 2)
+  productId String   @map("product_id")
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  isActive  Boolean  @default(true)
+  isActive  Boolean  @default(true) @map("is_active")
+
+  @@map("product_variants")
 }
 
 model Review {
@@ -106,24 +118,28 @@ model Review {
   rating     Int
   title      String?
   comment    String?
-  userName   String
-  userEmail  String
-  isVerified Boolean  @default(false)
-  productId  String
+  userName   String   @map("user_name")
+  userEmail  String   @map("user_email")
+  isVerified Boolean  @default(false) @map("is_verified")
+  productId  String   @map("product_id")
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("reviews")
 }
 
 model Coupon {
   id          String   @id @default(cuid())
   code        String   @unique
-  discount    Float
+  discount    Decimal  @db.Decimal(10, 2)
   type        String   @default("PERCENTAGE")
-  minPurchase Float?
-  maxUses     Int?
-  currentUses Int      @default(0)
-  startDate   DateTime
-  endDate     DateTime
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  minPurchase Decimal? @map("min_purchase") @db.Decimal(10, 2)
+  maxUses     Int?     @map("max_uses")
+  currentUses Int      @default(0) @map("current_uses")
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("coupons")
 }

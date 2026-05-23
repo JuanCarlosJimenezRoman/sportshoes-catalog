@@ -64,9 +64,12 @@ export const getProducts = async (req, res, next) => {
       success: true,
       data: products.map(product => ({
         ...product,
-        colors: JSON.parse(product.colors || '[]'),
-        materials: JSON.parse(product.materials || '[]'),
-        tags: JSON.parse(product.tags || '[]'),
+        price: parseFloat(product.price),
+        comparePrice: product.comparePrice ? parseFloat(product.comparePrice) : null,
+        cost: product.cost ? parseFloat(product.cost) : null,
+        colors: product.colors || [],
+        materials: product.materials || [],
+        tags: product.tags || [],
         totalStock: product.variants.reduce((sum, v) => sum + v.stock, 0),
         availableSizes: product.variants
           .filter(v => v.stock > 0)
@@ -101,15 +104,22 @@ export const getProduct = async (req, res, next) => {
       _avg: { rating: true }
     });
 
+    const fortmatProduct = {
+      ...product,
+      price: parseFloat(product.price),
+      comparePrice: product.comparePrice ? parseFloat(product.comparePrice) : null,
+      cost: product.cost ? parseFloat(product.cost) : null,
+      variants: product.variants.map(variant => ({
+        ...variant,
+        price: variant.price ? parseFloat(variant.price) : null
+      })),
+      averageRating: avgRating._avg.rating || 0
+    };
+      
+
     res.json({
       success: true,
-      data: {
-        ...product,
-        colors: JSON.parse(product.colors || '[]'),
-        materials: JSON.parse(product.materials || '[]'),
-        tags: JSON.parse(product.tags || '[]'),
-        averageRating: avgRating._avg.rating || 0
-      }
+      data: fortmatProduct
     });
   } catch (error) {
     next(error);
@@ -159,9 +169,9 @@ export const createProduct = async (req, res, next) => {
         comparePrice: productData.comparePrice ? parseFloat(productData.comparePrice) : null,
         cost: productData.cost ? parseFloat(productData.cost) : null,
         gender: productData.gender || 'UNISEX',
-        colors: JSON.stringify(productData.colors || []),
-        materials: JSON.stringify(productData.materials || []),
-        tags: JSON.stringify(productData.tags || []),
+        color: productData.colors || [],
+        material: productData.materials || [],
+        tags: productData.tags || [],
         isActive: productData.isActive !== undefined ? productData.isActive : true,
         isFeatured: productData.isFeatured || false,
         seoTitle: productData.seoTitle || null,
@@ -213,9 +223,6 @@ export const updateProduct = async (req, res, next) => {
     if (updateData.price) updateData.price = parseFloat(updateData.price);
     if (updateData.comparePrice) updateData.comparePrice = parseFloat(updateData.comparePrice);
     if (updateData.cost) updateData.cost = parseFloat(updateData.cost);
-    if (updateData.colors) updateData.colors = JSON.stringify(updateData.colors);
-    if (updateData.materials) updateData.materials = JSON.stringify(updateData.materials);
-    if (updateData.tags) updateData.tags = JSON.stringify(updateData.tags);
 
     if (updateData.name) {
       updateData.slug = updateData.name
