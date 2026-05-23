@@ -9,6 +9,7 @@ import brandRoutes from './routes/brands.js';
 import authRoutes from './routes/auth.js';
 import sizeRoutes from './routes/sizes.js';
 import orderRoutes from './routes/orders.js';
+import facebookRoutes from './routes/facebook.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -38,13 +39,14 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/sizes', sizeRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/facebook', facebookRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📦 API: http://localhost:${PORT}/api`);
