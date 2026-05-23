@@ -25,7 +25,6 @@ const menuItems = [
   { name: 'Gestión de Tallas', href: '/admin/sizes', icon: AdjustmentsVerticalIcon },
   { name: 'Importar Excel', href: '/admin/import', icon: DocumentArrowUpIcon },
   { name: 'Edición Masiva', href: '/admin/sizes/massive', icon: TableCellsIcon },
-  { name: 'Facebook Sync', href: '/admin/facebook', icon: ShareIcon },
 ];
 
 export default function AdminLayout({ children }) {
